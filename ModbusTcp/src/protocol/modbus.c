@@ -419,11 +419,11 @@ static void init_emu_op_para(void)
 	g_emu_op_para.OperatingMode = PQ;
 	g_emu_op_para.pq_mode_set = PQ_STP;
 	g_emu_op_para.vsg_mode_set = VSG_PQ_PP;
-	g_emu_op_para.pq_pw_total = 9 * total_pcsnum;  // 180 * total_pcsnum;  // 180.0kW*28
+	g_emu_op_para.pq_pw_total = 0 * total_pcsnum;  // 180 * total_pcsnum;  // 180.0kW*28
 	g_emu_op_para.pq_cur_total = 0;				   // 140 * 28; // 140.0A*28
-	g_emu_op_para.vsg_pw_total = 9 * total_pcsnum; // 50 * 28;  // 180.0kW*28
-	g_emu_op_para.pq_qw_total = 7 * total_pcsnum;  // pq模式下无功
-	g_emu_op_para.vsg_qw_total = 7 * total_pcsnum; // -180~180 vsg模式下无功kVar
+	g_emu_op_para.vsg_pw_total = 0 * total_pcsnum; // 50 * 28;  // 180.0kW*28
+	g_emu_op_para.pq_qw_total = 0 * total_pcsnum;  // pq模式下无功
+	g_emu_op_para.vsg_qw_total = 0 * total_pcsnum; // -180~180 vsg模式下无功kVar
 
 	// PCS
 	// for (i = 0; i < MAX_PCS_NUM; i++)
@@ -555,7 +555,6 @@ int AnalysModbus(int id_thread, unsigned char *pdata, int len,int flag) // unsig
 
 				bams_Init();
 				initInterface61850();
-
 				Plc_Init();
 			}
 		}

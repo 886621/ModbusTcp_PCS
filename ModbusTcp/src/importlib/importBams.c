@@ -118,6 +118,7 @@ int recvfromBams(unsigned char pcsid_bms, unsigned char type, void *pdata)
 			flag_recv_bms[0] = 0;
 			flag_recv_bms[1] = 0;
 		}
+		//
 
 	}
 	break;

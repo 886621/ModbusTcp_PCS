@@ -35,7 +35,6 @@ void Plc_Init(void)
     para_plc.funOrder = orderfromPlc;
 	for (i = 0; i < MAX_PCS_NUM; i++)
 	{
-
 		para_plc.pcsnum[i] = pPara_Modtcp->pcsnum[i];
 	}
 

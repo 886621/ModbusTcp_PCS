@@ -270,16 +270,18 @@ int SaveYxData(int id_thread, int pcsid, unsigned short *pyx, unsigned char len)
 			}
 		}
 		printf("lcdid=%d pcsid=%d 有故障 目前故障总数=%d pcs总数=%d \n", id_thread, pcsid, err_num, total_pcsnum);
+		// g_emu_op_para.err_num = err_num; //现场调试启动PCS故障
 		for (i = 0; i < MAX_PCS_NUM; i++)
 			flag_recv_pcs[i] = 0;
 		flag_recv_lcd = 0;
 	}
 	return 0;
 }
+
 int SaveZjyxData(int id_thread, unsigned short *pzjyx, unsigned char len)
 {
 
-	if (memcmp((char *)g_ZjyxData.pcs_data, (char *)pzjyx, len))
+	// if (memcmp((char *)g_ZjyxData.pcs_data, (char *)pzjyx, len))
 	{
 		g_ZjyxData.sn = 0xff;
 		g_ZjyxData.lcdid = id_thread;

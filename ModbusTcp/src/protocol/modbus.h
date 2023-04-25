@@ -19,7 +19,7 @@
 #define PQ_STA 3 // 3：恒流模式；
 
 #define NUM_READ_YC 29 // 0x1d
-#define NUM_READ_YX 15
+#define NUM_READ_YX 16
 #define NUM_READ_ZJYX 7
 #define NUM_READ_ZJYC 15
 
