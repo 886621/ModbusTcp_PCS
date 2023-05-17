@@ -496,7 +496,7 @@ int AnalysModbus(int id_thread, unsigned char *pdata, int len,int flag) // unsig
 		val = emudata[4] * 256 + emudata[5];
 		if(regAddr==0x3056)
 		{
-			printf("lcdid=%d 心跳帧返回！！！val=%d\n", id_thread,val);
+			// printf("lcdid=%d 心跳帧返回！！！val=%d\n", id_thread,val);
 			modbus_sockt_timer[id_thread]=MX_HEART_BEAT;
 			return 0;
 		}
@@ -554,8 +554,9 @@ int AnalysModbus(int id_thread, unsigned char *pdata, int len,int flag) // unsig
 				countRecvPcsFlagAry(); // countRecvPcsFlag(); //
 
 				bams_Init();
-				initInterface61850();
-				Plc_Init();
+				sendto61850();
+				// initInterface61850();
+				// Plc_Init();
 			}
 		}
 		else

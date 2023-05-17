@@ -68,9 +68,9 @@ void RunAccordingtoStatus(int id_thread)
 	break;
 	case LCD_SET_MODE:
 	{
-		// 0x3046	产品运行模式设置	uint16	整机	1	5	"需在启机前设置，模块运行后无法进行设置
+		// 0x3046	产品运行模式设置	uint16	整机	1	5	"需在启机前设置，模块运行后无法进行设置"
 		// 1：PQ模式（高低穿功能，需选择1）；
-		// 5：VSG模式（并离网功能，需选择5）；"
+		// 5：VSG模式（并离网功能，需选择5）；
 		printf("LCD:%d 设置运行模式...\n", id_thread);
 		ret = SetLcdFun06(id_thread, 0x3046, g_emu_op_para.OperatingMode);
 	}
@@ -371,7 +371,6 @@ void *Modbus_clientSend_thread(void *arg) // 25
 				int res = AnalysModbus(id_thread, pcsdata.buf, pcsdata.len,0);
 				if (0 == res)
 				{
-
 					printf("数据解析成功！！！\n");
 				}
 			}

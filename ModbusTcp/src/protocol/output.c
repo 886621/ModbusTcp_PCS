@@ -10,18 +10,25 @@
 #include "logicAndControl.h"
 #include "YX_Define.h"
 #include "YC_Define.h"
+#define LIB_61850_PATH "/usr/lib/libiec61850_1.so"
+	typedef int (*p_initlcd)(void *);
+
+
+p_initlcd sendlcdpara_func = NULL;	
+
 //所有的LCD整机信息数据数据标识1都用2来表示，#
 //数据标识2编号从1-6，
 //每个LCD下模块信息，数据标识1都3来表示，
 //数据标识2编号从1-36，每个LCD模块信息占用6个编号，LCD1模块信息数据标识2从1-6，LCD2模块信息数据标识2从7-12，
 // LCD3模块信息数据标识2从13-18，LCD4模块信息数据标识2从19-24，LCD5模块信息数据标识2从25-30，LCD6模块信息数据标识2从31-36.
-
-LCD_YC_YX_DATA g_YcData[MAX_PCS_NUM * MAX_LCD_NUM];
+PARA_61850 para_61850;
+LCD_YC_YX_DATA g_YcData[(MAX_PCS_NUM * MAX_LCD_NUM)];
 // libName:订阅数据的模块； type：数据类型 ；ifcomp：是否与上次数据比较
-LCD_YC_YX_DATA g_YxData[MAX_PCS_NUM * MAX_LCD_NUM];
+LCD_YC_YX_DATA g_YxData[(MAX_PCS_NUM * MAX_LCD_NUM)];
 
 LCD_YC_YX_DATA g_ZjyxData;
 LCD_YC_YX_DATA g_ZjycData;
+
 
 // static void outputdata(unsigned char libName,unsigned char type,unsigned char ifcomp)
 static void outputdata(unsigned char type, int id)
@@ -58,6 +65,13 @@ static void outputdata(unsigned char type, int id)
 		break;
 		case _YX_:
 		{
+			printf("g_YxData[id-1].sn=%d g_YcData[id-1].lcdid=%d pcsid=%d  data_len= %d  \n",g_YxData->sn,g_YxData->lcdid,g_YxData->pcsid,g_YxData->data_len);
+			int s;
+			printf("aaa接收到的遥信数据: \n");
+			for(s=0;s <g_YxData->data_len/2;s++){
+				printf("%d ",g_YxData->pcs_data[s]);
+			}
+			printf("\n");
 			pnote->pfun(type, (void *)&g_YxData[id - 1]);
 		}
 
@@ -204,7 +218,7 @@ int SaveYxData(int id_thread, int pcsid, unsigned short *pyx, unsigned char len)
 	}
 	id += pcsid;
 	myprintbuf(len, (unsigned char *)pyx);
-	printf("saveYxData id_thread=%d pcsid=%d id=%d num=%d\n", id_thread, pcsid, id, len);
+	printf("saveYxData id_thread=%d pcsid=%d id=%d num=%d para_61850.flag_RecvNeed_LCD:%d\n", id_thread, pcsid, id, len,para_61850.flag_RecvNeed_LCD);
 	//  if(memcmp((char*)g_YxData[id].pcs_data,(char*)pyx,len))
 	{
 		g_YxData[id - 1].sn = id - 1;
@@ -317,16 +331,10 @@ void cleanYcYxData(void)
 	memset((unsigned char *)&g_ZjycData, 0x00, sizeof(LCD_YC_YX_DATA));
 }
 
-PARA_61850 para_61850;
-void initInterface61850(void)
+void sendto61850(void)
 {
-#define LIB_61850_PATH "/usr/lib/libiec61850_1.so"
-	typedef int (*p_initlcd)(void *);
-	void *handle;
-	char *error;
+
 	int i;
-	printf("initInterface61850\n");
-	p_initlcd my_func = NULL;
 	para_61850.lcdnum = pPara_Modtcp->lcdnum_cfg;
 
 	for (i = 0; i < MAX_PCS_NUM; i++)
@@ -337,6 +345,19 @@ void initInterface61850(void)
 	para_61850.balance_rate = pconfig->balance_rate;
 	para_61850.flag_RecvNeed_LCD = g_flag_RecvNeed_LCD;
 	printf("传输到61850接口的参数 %d %d \n", para_61850.lcdnum, para_61850.balance_rate);
+    sendlcdpara_func((void *)&para_61850);
+
+}
+
+void initInterface61850(void)
+{
+
+	void *handle;
+	char *error;
+
+	printf("initInterface61850\n");
+	p_initlcd my_func = NULL;
+
 	handle = dlopen(LIB_61850_PATH, RTLD_LAZY);
 	if (!handle)
 	{
@@ -353,5 +374,13 @@ void initInterface61850(void)
 		exit(EXIT_FAILURE);
 	}
 
-	my_func((void *)&para_61850);
+	*(void **)(&sendlcdpara_func) = dlsym(handle, "recvLcdPara");
+
+	if ((error = dlerror()) != NULL)
+	{
+		fprintf(stderr, "%s\n", error);
+		exit(EXIT_FAILURE);
+	}
+
+	my_func(NULL);
 }

@@ -43,6 +43,9 @@ int modbus_tcp_main(void *para_app)
 	pPara_Modtcp->balance_rate = pconfig->balance_rate;
 	printf("LCD 模块启动 系统定义最大功率=%d\n", pconfig->sys_max_pw);
 
+
+	Plc_Init();
+	initInterface61850();
 	CreateThreads();
 	return 0;
 }
@@ -76,7 +79,6 @@ int ykOrderFromBms(unsigned char type, YK_PARA *pYkPara, CallbackYK pfun)
 		// handleYkFromEms(pYkPara->item, pYkPara->data[0]);
 		break;
 	case _PCS_YK_:
-
 		printf("BMS模块调用PCS_YK\n");
 		handlePcsYkFromEms(pYkPara);
 		break;

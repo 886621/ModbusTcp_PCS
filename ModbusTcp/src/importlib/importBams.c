@@ -90,6 +90,7 @@ int recvfromBams(unsigned char pcsid_bms, unsigned char type, void *pdata)
 			
 		printf("33223322 flag_recv_bms[0]=%x  flag_recv_bms[1]=%x num_pcs1=%d num_pcs2=%d\n", flag_recv_bms[0], flag_recv_bms[1], num_pcs1, num_pcs2);
 		printf("bmsdata_cur[bmsid=%d][pcsid_bms=%d].soc=%d\n",bmsid,pcsid_bms,bmsdata_cur[bmsid][pcsid_bms].soc);
+
 		if ((num_pcs1 + num_pcs2) >= total_pcsnum)
 		{
 
@@ -118,7 +119,64 @@ int recvfromBams(unsigned char pcsid_bms, unsigned char type, void *pdata)
 			flag_recv_bms[0] = 0;
 			flag_recv_bms[1] = 0;
 		}
-		//
+
+		// //总需求1停机
+		// if(bmsdata_cur[bmsid][pcsid_bms].if_sys_fault == 1){
+		// 	stopAllPcs();
+		// }
+
+		// int lcdid=0,pcs111=0,b;
+		// // printf("pPara_Modtcp->pcsnum[i]");
+		// if(bmsid == 0){
+		// 	// lcdid = (pcsid_bms-(pcsid_bms%6))/6;
+		
+		// 	for(b=0;b<6;b++){
+		// 		pcs111 +=pPara_Modtcp->pcsnum[i];
+		// 		printf("pPara_Modtcp->pcsnum[%d]=%d\n",i,pPara_Modtcp->pcsnum[i]);
+		// 		//  printf("aaa pcs111:%d pPara_Modtcp->pcsnum[%d]=%d  ",pcs111,i,pPara_Modtcp->pcsnum[i]);
+		// 		 printf("--pcsid_bms:%d pcs111:%d \n",pcsid_bms,pcs111);
+		// 		if(pcsid_bms > pcs111){
+		// 			lcdid++;
+		// 			printf("\n --lcdid:%d \n",lcdid);
+		// 		}else{
+		// 			pcs111 = pcsid_bms-pcs111;
+		// 			// break;
+		// 		}
+		// 	}
+		// 	// printf("----bmsid:%d--pcsid_bms:%d--lcdid:%d pcs111:%d \n",bmsid,pcsid_bms,lcdid,pcs111);
+		// }else if(bmsid = 1){
+		// 	// lcdid = ((pcsid_bms+g_emu_op_para.num_pcs_bms[0])-(pcsid_bms%6))/6;
+
+		// 	for(b=0;b<6;b++){
+		// 		pcs111 +=pPara_Modtcp->pcsnum[i];
+		// 		// printf("bbb pcs111:%d pPara_Modtcp->pcsnum[%d]=%d",pcs111,i,pPara_Modtcp->pcsnum[i]);
+		// 		 printf("--pcsid_bms:%d pcs111:%d \n",pcsid_bms,pcs111);
+		// 		if(pcsid_bms > pcs111){
+		// 			lcdid++;
+		// 			printf("\n --lcdid:%d \n",lcdid);
+		// 		}else{
+		// 			pcs111 = pcsid_bms+g_emu_op_para.num_pcs_bms[0]-pcs111;
+		// 			break;
+		// 		}
+		// 	}
+		// 	// printf("----bmsid:%d--pcsid_bms:%d--lcdid:%d pcs111:%d\n",bmsid,pcsid_bms+g_emu_op_para.num_pcs_bms[0],lcdid,pcs111);
+		// }
+
+		// 电池分系统n状态为1、4、5、9、255时（停机、待机、故障、关机、调试中），向对应的PCS发停机指令
+		// if(bmsdata_cur[bmsid][pcsid_bms].sys_status == 1 || bmsdata_cur[bmsid][pcsid_bms].sys_status == 4 || bmsdata_cur[bmsid][pcsid_bms].sys_status == 5 \
+		// || bmsdata_cur[bmsid][pcsid_bms].sys_status == 9 || bmsdata_cur[bmsid][pcsid_bms].sys_status == 255 ){
+		// 	int lcdid;
+		// 	if(bmsid == 0){
+		// 		lcdid = (pcsid_bms-(pcsid_bms%6))/6;
+		// 	}else if(bmsid = 1){
+		// 		lcdid = ((pcsid_bms+g_emu_op_para.num_pcs_bms[0])-(pcsid_bms%6))/6;
+		// 		printf("------lcdid:%d \n",lcdid);
+		// 	}
+		// 	g_emu_action_lcd.flag_start_stop_lcd[lcdid] = 3;
+		// 	// g_emu_action_lcd.action_pcs[lcdid].flag_start_stop_pcs[pcsid] = 0x55;
+		// }
+
+
 
 	}
 	break;
