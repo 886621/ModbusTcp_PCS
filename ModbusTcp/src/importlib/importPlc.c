@@ -9,7 +9,7 @@
 #include "modbus_tcp_main.h"
 #include "modbus.h"
 #include "logicAndControl.h"
-#define LIB_PLC_PATH "/usr/lib/libplc.so"
+#define LIB_PLC_PATH "/usr/local/lib/libplc.so"
 PARA_PLC para_plc = {{"192.168.4.230"}, 2502, 6, {0, 0, 0, 0, 0, 0},NULL};
 
 static int orderfromPlc(int order)

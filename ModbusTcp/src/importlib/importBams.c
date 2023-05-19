@@ -7,7 +7,7 @@
 #include <unistd.h>
 #include <stdlib.h>
 #include "logicAndControl.h"
-#define LIB_MODBMS_PATH "/usr/lib/libbams_rtu.so"
+#define LIB_MODBMS_PATH "/usr/local/lib/libbams_rtu.so"
 PARA_BAMS para_bams = {2, {9600, 9600}, {2, 2}, {6, 0}};
 BmsData_Newest bmsdata_cur[2][18];
 BmsData_Newest bmsdata_bak[2][18];

@@ -10,8 +10,8 @@
 #include "logicAndControl.h"
 #include "YX_Define.h"
 #include "YC_Define.h"
-#define LIB_61850_PATH "/usr/lib/libiec61850_1.so"
-	typedef int (*p_initlcd)(void *);
+#define LIB_61850_PATH "/usr/local/lib/libiec61850.so"
+typedef int (*p_initlcd)(void *);
 
 
 p_initlcd sendlcdpara_func = NULL;	
@@ -284,7 +284,7 @@ int SaveYxData(int id_thread, int pcsid, unsigned short *pyx, unsigned char len)
 			}
 		}
 		printf("lcdid=%d pcsid=%d 有故障 目前故障总数=%d pcs总数=%d \n", id_thread, pcsid, err_num, total_pcsnum);
-		// g_emu_op_para.err_num = err_num; //现场调试启动PCS故障
+		g_emu_op_para.err_num = err_num; //现场调试启动PCS故障
 		for (i = 0; i < MAX_PCS_NUM; i++)
 			flag_recv_pcs[i] = 0;
 		flag_recv_lcd = 0;
