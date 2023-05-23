@@ -127,7 +127,7 @@ int SaveYcData(int id_thread, int pcsid, unsigned short *pyc, unsigned char len)
 	printf("遥测得到的有功功率 lcdid=%d pcsid=%d pw=%d %x\n", id_thread, pcsid, pw, g_YcData[id - 1].pcs_data[Active_power]);
 	printf("遥测得到的无功功率 lcdid=%d pcsid=%d qw=%d %x\n", id_thread, pcsid, qw, g_YcData[id - 1].pcs_data[Reactive_power]);
 	printf("遥测得到的视在功率 lcdid=%d pcsid=%d aw=%d %x \n", id_thread, pcsid, aw, g_YcData[id - 1].pcs_data[Apparent_power]);
-	// checkQw(id_thread,pcsid,qw);
+	//  checkQw(id_thread,pcsid,qw);
 	if (g_emu_status_lcd.status_pcs[id_thread].flag_start_stop[pcsid] == 1)
 	{
 	

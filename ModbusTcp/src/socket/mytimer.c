@@ -6,7 +6,10 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include "logicAndControl.h"
-int modbus_sockt_timer[MAX_LCD_NUM];
+#include "importBams.h"
+
+int modbus_sockt_timer[MAX_LCD_NUM]; 
+int bams_heartbeat_timer[2][18];
 void *TimerThread(void *arg)
 {
 	unsigned int second;
@@ -14,7 +17,7 @@ void *TimerThread(void *arg)
 	unsigned int hour;
 	// time_t timep;
 
-	int i;
+	int i,j;
 	// int grp_no;
 	second = 100;
 	min = 6000;
@@ -30,6 +33,15 @@ void *TimerThread(void *arg)
 			if (modbus_sockt_timer[i] > 0)
 			{
 				modbus_sockt_timer[i]--;
+			}
+		}
+
+		for(i = 0; i < 2; i++){
+			for(j=0;j < 18;j++){
+				if (bams_heartbeat_timer[i][j] > 0)
+				{
+					bams_heartbeat_timer[i][j]--;
+				}
 			}
 		}
 

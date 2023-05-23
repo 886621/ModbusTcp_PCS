@@ -47,6 +47,7 @@ typedef struct
 	unsigned char pcsid_bms;	   // 最大允许放电功率
 	unsigned short mx_cpw;		   //最大允许充电功率
 	unsigned short mx_dpw;		   //最大允许放电功率
+	unsigned short heartbeat;	   //心跳
 	unsigned short main_vol;	   //总电压
 	unsigned short mx_ccur;		   //最大允许充电电流
 	unsigned short mx_dccur;	   //最大允许放电电流
@@ -72,6 +73,7 @@ typedef struct
 extern BmsData_Newest bmsdata_cur[][18];
 extern BmsData_Newest bmsdata_bak[][18];
 extern PARA_BAMS para_bams;
+extern int bams_heartbeat_timer[2][18];
 void bams_Init(void);
 int checkBmsForStart(int sn);
 #endif

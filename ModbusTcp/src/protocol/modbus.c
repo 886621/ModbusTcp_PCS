@@ -554,6 +554,7 @@ int AnalysModbus(int id_thread, unsigned char *pdata, int len,int flag) // unsig
 				countRecvPcsFlagAry(); // countRecvPcsFlag(); //
 
 				bams_Init();
+				
 				sendto61850();
 				// initInterface61850();
 				// Plc_Init();
