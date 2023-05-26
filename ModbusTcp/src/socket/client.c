@@ -41,6 +41,8 @@ int send_heat_beat(int id_thread)
                 beatnum[id_thread]=0;
 		return ret;
 }
+
+
 void RunAccordingtoStatus(int id_thread)
 {
 	printf("\n\nLCD:%d lcd_state[id_thread]=%d  modbus_sockt_timer=%x %d\n", id_thread, lcd_state[id_thread],modbus_sockt_timer[id_thread],modbus_sockt_timer[id_thread]);
@@ -90,7 +92,6 @@ void RunAccordingtoStatus(int id_thread)
 	break;
 	case LCD_PQ_STP_PWVAL:
 	{
-		printf("LCD:%d PCS:%d 设置成PQ 恒功率有功参数设置...\n", id_thread, curPcsId[id_thread]);
 		unsigned short regaddr; // = pq_pcspw_set[curPcsId][curTaskId];
 		unsigned short val;
 		regaddr = pqpcs_pw_set[curPcsId[id_thread]];
@@ -98,12 +99,15 @@ void RunAccordingtoStatus(int id_thread)
 			val = g_emu_op_para.pq_pw_total / (total_pcsnum - g_emu_op_para.err_num);
 		else
 			val = 0;
+		
+		short showVal = val;
+		printf("LCD:%d PCS:%d 设置成PQ 恒功率有功参数设置...val:%d\n", id_thread, curPcsId[id_thread],showVal);
 		ret = SetLcdFun06(id_thread, regaddr, val);
 	}
 	break;
 	case LCD_PQ_STP_QWVAL:
 	{
-		printf("LCD:%d PQ 无功参数设置  PCS:%d ...\n", id_thread, curPcsId[id_thread]);
+		
 		unsigned short regaddr; // = pq_pcspw_set[curPcsId][curTaskId];
 		unsigned short val;
 
@@ -112,6 +116,9 @@ void RunAccordingtoStatus(int id_thread)
 			val = g_emu_op_para.pq_qw_total / (total_pcsnum - g_emu_op_para.err_num);
 		else
 			val = 0;
+
+		short showVal = val;
+		printf("LCD:%d PQ 无功参数设置  PCS:%d ...val:%d\n", id_thread, curPcsId[id_thread],showVal);
 		ret = SetLcdFun06(id_thread, regaddr, val);
 	}
 
@@ -170,8 +177,8 @@ void RunAccordingtoStatus(int id_thread)
 			val = 0;
 		ret = SetLcdFun06(id_thread, regaddr, val);
 	}
-
 	break;
+
 	case LCD_PCS_START:
 	{
 		unsigned short regaddr; // = pq_pcspw_set[curPcsId][curTaskId];
@@ -212,6 +219,32 @@ void RunAccordingtoStatus(int id_thread)
 		}
 	}
 	break;
+	case LCD_PCS_STOP_OV:
+	{
+		unsigned short regaddr; // = pq_pcspw_set[curPcsId][curTaskId];
+		unsigned short val;
+		int i = 0;
+		unsigned char temp = bms_ov_status[id_thread];
+
+		printf("aaaa temp:%d \n",temp);
+		for (i = curPcsId[id_thread]; i <= pPara_Modtcp->pcsnum[id_thread]; i++) {
+			if ((temp & 1 << i) > 0) {
+				regaddr = pcs_on_off_set[i];
+				printf("LCD:%d ov关机 ...\n", id_thread);
+				val = 0x00ff;
+				curPcsId[id_thread] = i;
+				ret = SetLcdFun06(id_thread, regaddr, val);
+				break;
+			}
+		}
+
+		if (i>=pPara_Modtcp->pcsnum[id_thread]) {
+			curPcsId[id_thread] = 0;
+			curTaskId[id_thread] = 0;
+			lcd_state[id_thread] = LCD_RUNNING;
+		} 
+	} 
+	break;
 	case LCD_PCS_START_STOP_ONE:
 	{
 		unsigned short regaddr; // = pq_pcspw_set[curPcsId][curTaskId];
@@ -237,7 +270,7 @@ void RunAccordingtoStatus(int id_thread)
 		else
 		{
 			printf("启停数据出现错误！！！！\n");
-		//	return 1;
+			return 1;
 		}
 		ret = SetLcdFun06(id_thread, regaddr, val);
 	}
@@ -412,7 +445,19 @@ void *Modbus_clientSend_thread(void *arg) // 25
                  send_heat_beat(id_thread);
 			}
 			else
+			{
+				if(id_thread == 0 || id_thread == 3){
+					printf("停机ov bms_ov_status[%d]:%x  lcd_state[%d]:%d\n",id_thread,bms_ov_status[id_thread],id_thread,lcd_state[id_thread]);
+				}
+				if (bms_ov_status[id_thread] > 0 && (lcd_state[id_thread] == LCD_DO_NOTHING || lcd_state[id_thread] == LCD_RUNNING))
+				{
+					printf("aaaa停机ov bms_ov_status[%d]:%d \n",id_thread,bms_ov_status[id_thread]);
+					curPcsId[id_thread] = 0;
+					lcd_state[id_thread] = LCD_PCS_STOP_OV;
+				}
 				RunAccordingtoStatus(id_thread);
+			}
+				
 		}
 			
 	}

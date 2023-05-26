@@ -128,22 +128,30 @@ int SaveYcData(int id_thread, int pcsid, unsigned short *pyc, unsigned char len)
 	printf("遥测得到的无功功率 lcdid=%d pcsid=%d qw=%d %x\n", id_thread, pcsid, qw, g_YcData[id - 1].pcs_data[Reactive_power]);
 	printf("遥测得到的视在功率 lcdid=%d pcsid=%d aw=%d %x \n", id_thread, pcsid, aw, g_YcData[id - 1].pcs_data[Apparent_power]);
 	//  checkQw(id_thread,pcsid,qw);
+	printf(" aaaaaaaaaaa flag_start_stop[%d]:%d\n",pcsid,g_emu_status_lcd.status_pcs[id_thread].flag_start_stop[pcsid]);
+
+	// checkBmsStatus(id_thread,pcsid,id-1);
+
+
 	if (g_emu_status_lcd.status_pcs[id_thread].flag_start_stop[pcsid] == 1)
 	{
-	
+		printf("test aaa\n");
 		if (g_emu_op_para.flag_soc_bak == 1)
 		{
+			printf("test bbb\n");
 			countPwAdj(id_thread, pcsid, pw, 1);
 			countQwAdj(id_thread, pcsid, qw, 1);
 		}
 		else
 		{
+			printf("test ccc\n");
 			countPwAdj(id_thread, pcsid, pw, 0);
 			countQwAdj(id_thread, pcsid, qw, 0);
 		}
 	}
 
 	flag_recv_pcs[id_thread] |= (1 << (pcsid - 1));
+	
 
 	if (flag_recv_pcs[id_thread] == flag_RecvNeed_PCS[id_thread])
 	{
@@ -278,7 +286,8 @@ int SaveYxData(int id_thread, int pcsid, unsigned short *pyx, unsigned char len)
 		printf("99999999999999999999\n");
 		for (i = 0; i < total_pcsnum; i++)
 		{
-			if ((g_YxData[id - 1].pcs_data[u16_InvRunState1] & (1 << bFaultStatus)) != 0)
+			printf("g_YxData[i].pcs_data[u16_InvRunState1]:%d \n",g_YxData[i].pcs_data[u16_InvRunState1]);
+			if ((g_YxData[i].pcs_data[u16_InvRunState1] & (1 << bFaultStatus))!= 0)
 			{
 				err_num++;
 			}

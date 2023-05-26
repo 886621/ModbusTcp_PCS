@@ -36,14 +36,15 @@ void *TimerThread(void *arg)
 			}
 		}
 
-		for(i = 0; i < 2; i++){
-			for(j=0;j < 18;j++){
-				if (bams_heartbeat_timer[i][j] > 0)
-				{
-					bams_heartbeat_timer[i][j]--;
-				}
-			}
-		}
+		// for(i = 0; i < 2; i++){
+		// 	for(j=0;j < 18;j++){
+		// 		if (bams_heartbeat_timer[i][j] > 0)
+		// 		{
+		// 			bams_heartbeat_timer[i][j]--;
+		// 			printf("心跳计时器  %d\n",bams_heartbeat_timer[i][j]);
+		// 		}
+		// 	}
+		// }
 
 		if (second > 0)
 		{

@@ -98,6 +98,7 @@ enum LCD_WORK_STATE // LCD当前工作状态
 
 	LCD_PCS_START_STOP_ONE = 12, //启动本LCD下一个PCS
 
+	LCD_PCS_STOP_OV = 13,   //单体电压过高或过低关机
 	LCD_PARALLEL_AWAY_EN = 14, //并转离切换使能
 	LCD_PARALLEL_AWAY_DN = 15, //并转离切换失能
 

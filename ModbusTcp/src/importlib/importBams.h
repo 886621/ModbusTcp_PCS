@@ -73,7 +73,7 @@ typedef struct
 extern BmsData_Newest bmsdata_cur[][18];
 extern BmsData_Newest bmsdata_bak[][18];
 extern PARA_BAMS para_bams;
-extern int bams_heartbeat_timer[2][18];
+// extern int bams_heartbeat_timer[2][18];
 void bams_Init(void);
 int checkBmsForStart(int sn);
 #endif

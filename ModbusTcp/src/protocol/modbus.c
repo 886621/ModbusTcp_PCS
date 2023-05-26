@@ -734,6 +734,19 @@ int AnalysModbus(int id_thread, unsigned char *pdata, int len,int flag) // unsig
 		else
 			printf("注意：整机启动或停止程序出错！！！！\n");
 	}
+	else if (funid == 6 && lcd_state[id_thread] == LCD_PCS_STOP_OV)
+	{
+		if (regAddr == pcs_on_off_set[curPcsId[id_thread]]) //启动或停止
+		{
+			curTaskId[id_thread]++;
+			g_emu_action_lcd.action_pcs[id_thread].flag_start_stop_pcs[curPcsId[id_thread]] = 0;
+            bms_ov_status[id_thread] &=~( 1 << curPcsId[id_thread]);
+			printf("06 返回bms_ov_status[%d]:%d \n",id_thread, bms_ov_status[id_thread]);
+			g_emu_status_lcd.status_pcs[id_thread].flag_start_stop[curPcsId[id_thread]] = 0;
+		}
+		else
+			printf("注意：ov 停止程序出错！！！！\n");
+	}
 	else if (funid == 6 && (lcd_state[id_thread] == LCD_PCS_START_STOP_ONE))
 	{
 		if (regAddr == pcs_on_off_set[curPcsId[id_thread]]) //单pcs启动或停止
