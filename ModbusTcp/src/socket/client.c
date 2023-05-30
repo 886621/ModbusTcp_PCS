@@ -531,7 +531,9 @@ loop:
 		ret = _socket_client_init(&server_sock);
 		if (ret != 0)
 		{
-			goto endconn;
+			// goto endconn;
+			sleep(1);
+			continue;
 		}
 		else
 			break;
