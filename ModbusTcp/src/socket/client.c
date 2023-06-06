@@ -354,6 +354,9 @@ void RunAccordingtoStatus(int id_thread)
 	break;
 
 	case LCD_DO_NOTHING:
+	{
+		printf("什么都不做\n");
+	}
 		break;
 	default:
 		printf("注意：出现未经定义的状态！！！\n");
@@ -387,7 +390,8 @@ void *Modbus_clientSend_thread(void *arg) // 25
 	g_comm_qmegid[id_thread] = os_create_msgqueue(&key, 1);
 	wait_flag[id_thread] = 0;
 	sleep(2);
-	// printf("modbus_sockt_state[id_thread] == STATUS_ON\n") ;
+
+write_loop:
 	while (modbus_sockt_state[id_thread] == STATUS_ON) //
 	{
 		// printf("wait_flag:%d\n", wait_flag);
@@ -446,9 +450,6 @@ void *Modbus_clientSend_thread(void *arg) // 25
 			}
 			else
 			{
-				if(id_thread == 0 || id_thread == 3){
-					printf("停机ov bms_ov_status[%d]:%x  lcd_state[%d]:%d\n",id_thread,bms_ov_status[id_thread],id_thread,lcd_state[id_thread]);
-				}
 				if (bms_ov_status[id_thread] > 0 && (lcd_state[id_thread] == LCD_DO_NOTHING || lcd_state[id_thread] == LCD_RUNNING))
 				{
 					printf("aaaa停机ov bms_ov_status[%d]:%d \n",id_thread,bms_ov_status[id_thread]);
@@ -461,6 +462,14 @@ void *Modbus_clientSend_thread(void *arg) // 25
 		}
 			
 	}
+
+	while(1){
+		if(modbus_sockt_state[id_thread] == STATUS_ON)
+			goto write_loop;
+		else 
+			continue;
+	}
+
 	return NULL;
 }
 
@@ -476,13 +485,17 @@ static int recvFrame(int fd, int qid, MyData *recvbuf)
 	//		readlen = recv(fd, (recvbuf.buf + recvbuf.len),
 	//				(MAX_BUF_SIZE - recvbuf.len), 0);
 	//		printf("*****  F:%s L:%d recv readlen=%d\n", __FUNCTION__, __LINE__,	readlen);
+	// printf("*****  recv readlen=%d\n",readlen);
 	if (readlen < 0)
 	{
+		
 		printf("连接断开或异常\r\n");
 		return -1;
 	}
-	else if (readlen == 0)
+	else if (readlen == 0){
 		return 1;
+	}
+		
 	recvbuf->len = readlen;
 	myprintbuf(readlen, recvbuf->buf);
 	msg.msgtype = 1;
@@ -578,6 +591,7 @@ loop:
 		//    tv.tv_usec = 50000;
 		tv.tv_usec = 20000;
 		ret = select(fd + 1, &maxFd, NULL, NULL, &tv);
+		// printf("ret:%d \n",ret);
 		if (ret < 0)
 		{
 
@@ -625,12 +639,14 @@ loop:
 
 					// if(i>30)
 					// {
-					// 	printf("接收数据长度为0！！！！！！！！！！！！！！！！\r\n");
+						// printf("接收数据长度为0！！！！！！！！！！！！！！！！\r\n");
 
 					// 	i=0;
 
 					// }
-					continue;
+					printf("id_thread:%d 对方已断开连接 \n"id_thread);
+					break;
+					// continue;
 				}
 				else
 				{
@@ -645,6 +661,7 @@ loop:
 			}
 		}
 	}
+	close(fd);
 	modbus_sockt_state[id_thread] = STATUS_OFF;
 	pPara_Modtcp->lcdnum_real--;
 	// g_flag_RecvNeed_LCD &= ~(1 << id_thread);

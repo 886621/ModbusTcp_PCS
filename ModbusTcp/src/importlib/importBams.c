@@ -161,8 +161,8 @@ int recvfromBams(unsigned char pcsid_bms, unsigned char type, void *pdata)
 				1.单体正常充放电截止电压区间 2.90V~3.55V，PCS 检测到电池分系统单体最高电压达到3.6V，PCS 应停机或封脉冲；电池分系统单体,最高电压达到 3.63V，PCS 应关机；
 				2.单体正常充放电截止电压区间 2.90V~3.55V，PCS 检测到电池分系统单体最低电压达到2.85V，PCS 应停机或封脉冲；电池分系统单体,最低电压达到 2.75V，PCS 应关机；
 			*/
-			float single_mx_vol =  (float)bmsdata_bak[bmsid][pcsid_bms].single_mx_vol/1000;
-			float single_mi_vol =  (float)bmsdata_bak[bmsid][pcsid_bms].single_mi_vol/1000;
+			float single_mx_vol =  (float)bmsdata_cur[bmsid][pcsid_bms].single_mx_vol/1000;
+			float single_mi_vol =  (float)bmsdata_cur[bmsid][pcsid_bms].single_mi_vol/1000;
 			printf("tttaaa bms 最高单体电压：%f  最低单体电压：%f lcdid:%d pcsid:%d flag_start_stop:%d\n",single_mx_vol,single_mi_vol,lcdid,lcd_pcs_id,g_emu_status_lcd.status_pcs[lcdid].flag_start_stop[lcd_pcs_id]);
 			if( single_mx_vol>= 3.55 || single_mi_vol <= 2.9){
 					printf("tttaaa1111 bms 最高单体电压：%f  最低单体电压：%f lcdid:%d pcsid:%d flag_start_stop:%d\n",single_mx_vol,single_mi_vol,lcdid,lcd_pcs_id,g_emu_status_lcd.status_pcs[lcdid].flag_start_stop[lcd_pcs_id]);

@@ -554,10 +554,7 @@ int AnalysModbus(int id_thread, unsigned char *pdata, int len,int flag) // unsig
 				countRecvPcsFlagAry(); // countRecvPcsFlag(); //
 
 				bams_Init();
-				
 				sendto61850();
-				// initInterface61850();
-				// Plc_Init();
 			}
 		}
 		else
@@ -926,6 +923,7 @@ int doFun03Tasks(int id_thread, int *p_pcsid)
 
 	if (send(modbus_client_sockptr[id_thread], sendbuf, lensend, 0) < 0)
 	{
+		printf("send errrrr!!!");
 		numfail++;
 		printf("发送失败！！！！id_thread=%d\n", id_thread);
 		return 0xffff;
