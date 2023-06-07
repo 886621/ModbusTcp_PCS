@@ -354,9 +354,6 @@ void RunAccordingtoStatus(int id_thread)
 	break;
 
 	case LCD_DO_NOTHING:
-	{
-		printf("什么都不做\n");
-	}
 		break;
 	default:
 		printf("注意：出现未经定义的状态！！！\n");
@@ -644,7 +641,7 @@ loop:
 					// 	i=0;
 
 					// }
-					printf("id_thread:%d 对方已断开连接 \n"id_thread);
+					printf("id_thread:%d 对方已断开连接 \n",id_thread);
 					break;
 					// continue;
 				}
