@@ -716,6 +716,7 @@ int AnalysModbus(int id_thread, unsigned char *pdata, int len,int flag) // unsig
 	{
 		if (regAddr == pcs_on_off_set[curPcsId[id_thread]]) //启动或停止
 		{
+			static unsigned char revcLcdNum = 0;
 			curTaskId[id_thread] = 0;
 			g_emu_action_lcd.action_pcs[id_thread].flag_start_stop_pcs[curPcsId[id_thread]] = 0;
 			curPcsId[id_thread]++;
@@ -725,6 +726,23 @@ int AnalysModbus(int id_thread, unsigned char *pdata, int len,int flag) // unsig
 				curPcsId[id_thread] = 0;
 				g_emu_action_lcd.flag_start_stop_lcd[id_thread] = 0;
 				lcd_state[id_thread] = LCD_RUNNING;
+
+				revcLcdNum++;
+				if( revcLcdNum  == pPara_Modtcp->lcdnum_cfg){
+
+					YK_PARA para;
+					if(PLC_EMU_BOX_SwitchD1==0){
+						para.item = BOX_SwitchD1_OFF;
+						ykOrder_pcs_plc(_BMS_PLC_YK_, &para, NULL);
+					}
+
+					if(PLC_EMU_BOX_SwitchD2==0){
+						para.item = BOX_SwitchD2_OFF;
+						ykOrder_pcs_plc(_BMS_PLC_YK_, &para, NULL);
+					}	
+
+					revcLcdNum = 0;
+				}
 				printf("cpp启动或停止LCD[%d]成功\n", id_thread);
 			}
 		}

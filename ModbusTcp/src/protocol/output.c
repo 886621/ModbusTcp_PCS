@@ -286,7 +286,7 @@ int SaveYxData(int id_thread, int pcsid, unsigned short *pyx, unsigned char len)
 		printf("99999999999999999999\n");
 		for (i = 0; i < total_pcsnum; i++)
 		{
-			printf("g_YxData[i].pcs_data[u16_InvRunState1]:%d \n",g_YxData[i].pcs_data[u16_InvRunState1]);
+			// printf("g_YxData[i].pcs_data[u16_InvRunState1]:%d \n",g_YxData[i].pcs_data[u16_InvRunState1]);
 			if ((g_YxData[i].pcs_data[u16_InvRunState1] & (1 << bFaultStatus))!= 0)
 			{
 				err_num++;

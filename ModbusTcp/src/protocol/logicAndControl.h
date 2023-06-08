@@ -80,6 +80,7 @@ extern EMU_ADJ_LCD g_emu_adj_lcd;
 extern EMU_STATUS_LCD g_emu_status_lcd;
 extern EMU_ACTION_LCD g_emu_action_lcd;
 extern unsigned char bms_ov_status[6];
+extern int PLC_EMU_BOX_SwitchD1,PLC_EMU_BOX_SwitchD2;
 
 // int (YK_PARA *pYkPara);
 int handleYkFromEms(YK_PARA *pYkPara);

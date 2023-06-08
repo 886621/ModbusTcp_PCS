@@ -16,6 +16,8 @@
 #define _BMS_YK_ 1
 #define _PCS_YK_ 2
 
+#define _BMS_PLC_YK_ 4
+
 #define MASTER 1
 #define SLAVE 2
 #define MAX_YCDATA_NUM 32
@@ -81,6 +83,11 @@ typedef struct
 typedef int (*outData2Other)(unsigned char, void *pdata); //输出数据签名
 typedef int (*CallbackYK)(unsigned char, void *pdata);	  //遥控回调函数签名
 extern CallbackYK pbackBmsFun;
+
+typedef int (*YKOrder)(unsigned char, YK_PARA *, CallbackYK);
+extern YKOrder ykOrder_pcs_plc;
+
+
 typedef struct _post_list_t
 {
 	outData2Other pfun;

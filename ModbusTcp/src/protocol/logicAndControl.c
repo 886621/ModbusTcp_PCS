@@ -7,6 +7,7 @@
 #include "modbus.h"
 #include <sys/mman.h>
 #include <string.h>
+#include "modbus_tcp_main.h"
 int total_pcsnum = 28;
 int g_flag_RecvNeed = 0;
 int g_flag_RecvNeed_LCD = 0;
@@ -88,8 +89,20 @@ int handleYxFromEms(int item, unsigned char data)
 
 void startAllPcs(void)
 {
+
 	int i;
 	int flag = 0;
+	YK_PARA para;
+	
+	if(PLC_EMU_BOX_SwitchD1==0){
+		para.item = BOX_SwitchD1_ON;
+		ykOrder_pcs_plc(_BMS_PLC_YK_, &para, NULL);
+	}
+
+	if(PLC_EMU_BOX_SwitchD2==0){
+		para.item = BOX_SwitchD2_ON;
+		ykOrder_pcs_plc(_BMS_PLC_YK_, &para, NULL);
+	}
 
 	for (i = 0; i < pPara_Modtcp->lcdnum_cfg; i++)
 	{

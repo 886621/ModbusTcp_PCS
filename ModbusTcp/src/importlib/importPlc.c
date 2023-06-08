@@ -11,6 +11,9 @@
 #include "logicAndControl.h"
 #define LIB_PLC_PATH "/usr/local/lib/libplc.so"
 PARA_PLC para_plc = {{"192.168.4.230"}, 2502, 6, {0, 0, 0, 0, 0, 0},NULL};
+int PLC_EMU_BOX_SwitchD1=0,PLC_EMU_BOX_SwitchD2=0;
+
+YKOrder ykOrder_pcs_plc = NULL;
 
 static int orderfromPlc(int order)
 {
@@ -21,6 +24,19 @@ static int orderfromPlc(int order)
 	else if(order==2)
 	   stopAllPcs();
 	return 0;
+}
+
+int recvfromplc(unsigned char type, void *pdata){
+	unsigned short temp = *(unsigned short *)pdata;
+	if ((temp & (1 << PLC_EMU_BOX_SwitchD1_ON)) > 0)
+		PLC_EMU_BOX_SwitchD1=1;
+	else
+		PLC_EMU_BOX_SwitchD1=0;
+
+	if ((temp & (1 << PLC_EMU_BOX_SwitchD2_ON)) > 0)
+		PLC_EMU_BOX_SwitchD2=1;
+	else	
+		PLC_EMU_BOX_SwitchD2=0;
 }
 
 void Plc_Init(void)
@@ -53,6 +69,7 @@ void Plc_Init(void)
 
 	printf("1LCD模块动态调用PLC模块！\n");
 	*(void **)(&my_func) = dlsym(handle, "plc_main");
+	*(void **)(&ykOrder_pcs_plc) = dlsym(handle, "ykOrderFromBms");
 
 	if ((error = dlerror()) != NULL)
 	{
@@ -62,4 +79,5 @@ void Plc_Init(void)
 
 	// para_plc.funOrder = orderfromPlc;
 	my_func((void *)&para_plc);
+	ykOrder_pcs_plc(_BMS_YX_, NULL, recvfromplc);
 }
