@@ -17,4 +17,6 @@ int SaveZjyxData(int id_thread, unsigned short *pzjyx, unsigned char len);
 int SaveZjycData(int id_thread, unsigned short *pzjyc, unsigned char len);
 void initInterface61850(void);
 void cleanYcYxData(void);
+
+void sendto61850(void);
 #endif

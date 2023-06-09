@@ -270,7 +270,7 @@ void RunAccordingtoStatus(int id_thread)
 		else
 		{
 			printf("启停数据出现错误！！！！\n");
-			return 1;
+			return;
 		}
 		ret = SetLcdFun06(id_thread, regaddr, val);
 	}

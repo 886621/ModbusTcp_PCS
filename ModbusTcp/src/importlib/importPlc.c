@@ -15,6 +15,9 @@ int PLC_EMU_BOX_SwitchD1=0,PLC_EMU_BOX_SwitchD2=0;
 
 YKOrder ykOrder_pcs_plc = NULL;
 
+typedef int (*p_initlcd)(void *);
+p_initlcd sendlcdpara_plc_func = NULL;	
+
 static int orderfromPlc(int order)
 {
 	// short plcYK = *(short *)pdata;
@@ -37,6 +40,22 @@ int recvfromplc(unsigned char type, void *pdata){
 		PLC_EMU_BOX_SwitchD2=1;
 	else	
 		PLC_EMU_BOX_SwitchD2=0;
+	printf("PLC_EMU_BOX_Switch: D1、D2 %d %d data:%x\n",PLC_EMU_BOX_SwitchD1,PLC_EMU_BOX_SwitchD2,temp);
+}
+
+
+void sendtoPlc(void){
+	int i;
+	para_plc.lcdnum = pPara_Modtcp->lcdnum_cfg;
+    para_plc.funOrder = orderfromPlc;
+	for (i = 0; i < MAX_PCS_NUM; i++)
+	{
+		para_plc.pcsnum[i] = pPara_Modtcp->pcsnum[i];
+	}
+    para_plc.server_port=pconfig->plc_server_port;
+	para_plc.flag_RecvNeed_LCD=g_flag_RecvNeed_LCD;
+	strcpy(para_plc.server_ip,pconfig->plc_server_ip);
+	sendlcdpara_plc_func((void *)&para_plc);
 }
 
 void Plc_Init(void)
@@ -70,6 +89,7 @@ void Plc_Init(void)
 	printf("1LCD模块动态调用PLC模块！\n");
 	*(void **)(&my_func) = dlsym(handle, "plc_main");
 	*(void **)(&ykOrder_pcs_plc) = dlsym(handle, "ykOrderFromBms");
+	*(void **)(&sendlcdpara_plc_func) = dlsym(handle, "recvLcdPara");
 
 	if ((error = dlerror()) != NULL)
 	{

@@ -46,6 +46,7 @@ typedef struct
 	unsigned char lcdnum;
 	unsigned char pcsnum[MAX_PCS_NUM];
 	orderToLcd funOrder;
+	int flag_RecvNeed_LCD;
 } PARA_PLC; //从主控传到plc模块的结构
 
 void Plc_Init(void);
