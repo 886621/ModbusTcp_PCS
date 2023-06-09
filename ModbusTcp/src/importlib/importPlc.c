@@ -38,8 +38,11 @@ int recvfromplc(unsigned char type, void *pdata){
 
 	if ((temp & (1 << PLC_EMU_BOX_SwitchD2_ON)) > 0)
 		PLC_EMU_BOX_SwitchD2=1;
-	else	
+	else{
 		PLC_EMU_BOX_SwitchD2=0;
+	}	
+		
+
 	printf("PLC_EMU_BOX_Switch: D1、D2 %d %d data:%x\n",PLC_EMU_BOX_SwitchD1,PLC_EMU_BOX_SwitchD2,temp);
 }
 

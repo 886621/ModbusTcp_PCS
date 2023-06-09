@@ -5,7 +5,8 @@
 		"mytimer.h": "c",
 		"output.h": "c",
 		"logicandcontrol.h": "c",
-		"importbams.h": "c"
+		"importbams.h": "c",
+		"importplc.h": "c"
 	},
 	"C_Cpp.errorSquiggles": "Disabled"
 }

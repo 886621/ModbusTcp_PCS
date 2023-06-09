@@ -664,10 +664,10 @@ loop:
 	// g_flag_RecvNeed_LCD &= ~(1 << id_thread);
 	printf("网络断开，重连！！！！");
 	goto loop;
-endconn:
-	printf("lcdid=%d 连接服务器失败！！！！\n", id_thread);
-	pPara_Modtcp->lcdnum_err++;
-	return NULL;
+// endconn:
+// 	printf("lcdid=%d 连接服务器失败！！！！\n", id_thread);
+// 	pPara_Modtcp->lcdnum_err++;
+// 	return NULL;
 }
 
 void CreateThreads(void)

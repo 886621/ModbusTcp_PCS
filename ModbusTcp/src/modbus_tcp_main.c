@@ -6,6 +6,8 @@
 #include "client.h"
 #include <string.h>
 #include <malloc.h>
+#include "output.h"
+#include "importPlc.h"
 
 CallbackYK pbackBmsFun = NULL;
 // int modbus_tcp_main(void *para_app)

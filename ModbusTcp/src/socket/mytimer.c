@@ -17,7 +17,8 @@ void *TimerThread(void *arg)
 	unsigned int hour;
 	// time_t timep;
 
-	int i,j;
+	int i;
+	// int j;
 	// int grp_no;
 	second = 100;
 	min = 6000;

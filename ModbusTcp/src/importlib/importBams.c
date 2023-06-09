@@ -88,7 +88,7 @@ int lcdPcsCount(unsigned char bmsid,unsigned char pcsid_bms,unsigned char *pLcdi
 
 int recvfromBams(unsigned char pcsid_bms, unsigned char type, void *pdata)
 {
-	int i,j;
+	int i;
 	switch (type)
 	{
 		case _ALL_:
@@ -172,110 +172,111 @@ int recvfromBams(unsigned char pcsid_bms, unsigned char type, void *pdata)
 					}
 			}
 
+		/*
+		// unsigned char lcdid=0,lcd_pcs_id=0, lcdid1=0,lcd_pcs_id1=0;
+			lcdPcsCount(bmsid,pcsid_bms,&lcdid,&lcd_pcs_id);
+			printf("bamsaa bmsid:%d pcsid_bms:%d lcdid：%d %d g_emu_status_lcd.status_pcs[%d].flag_start_stop[%d]:%d \n",bmsid,pcsid_bms+1,lcdid,lcd_pcs_id,lcdid,lcd_pcs_id,g_emu_status_lcd.status_pcs[lcdid].flag_start_stop[lcd_pcs_id]);
+			int all_stop_flag=0;  //1： 全部设备停机   0：还有设备不是停机
 
-			// unsigned char lcdid=0,lcd_pcs_id=0, lcdid1=0,lcd_pcs_id1=0;
-			// lcdPcsCount(bmsid,pcsid_bms,&lcdid,&lcd_pcs_id);
-			// printf("bamsaa bmsid:%d pcsid_bms:%d lcdid：%d %d g_emu_status_lcd.status_pcs[%d].flag_start_stop[%d]:%d \n",bmsid,pcsid_bms+1,lcdid,lcd_pcs_id,lcdid,lcd_pcs_id,g_emu_status_lcd.status_pcs[lcdid].flag_start_stop[lcd_pcs_id]);
-			// int all_stop_flag=0;  //1： 全部设备停机   0：还有设备不是停机
+			// 总需求1停机
+			if(bmsdata_cur[bmsid][pcsid_bms].if_sys_fault == 1){
+				for(i=0;i<MAX_LCD_NUM;i++){
+					for(j=0;j<MAX_PCS_NUM;j++){
+						if(g_emu_status_lcd.status_pcs[i].flag_start_stop[j] == 0){
+							all_stop_flag=1;
+						}
+						else{
+							all_stop_flag=0;
+							break;
+						}
+					}	
+				}
+				if(all_stop_flag==1)
+					return 0;
 
-			//总需求1停机
-			// if(bmsdata_cur[bmsid][pcsid_bms].if_sys_fault == 1){
-			// 	for(i=0;i<MAX_LCD_NUM;i++){
-			// 		for(j=0;j<MAX_PCS_NUM;j++){
-			// 			if(g_emu_status_lcd.status_pcs[i].flag_start_stop[j] == 0){
-			// 				all_stop_flag=1;
-			// 			}
-			// 			else{
-			// 				all_stop_flag=0;
-			// 				break;
-			// 			}
-			// 		}	
-			// 	}
-			// 	if(all_stop_flag==1)
-			// 		return 0;
-
-			// 	printf("bms发停机指令 总需求1停机，对所有PCS发停机指令;\n");
-			// 	stopAllPcs();
-			// }
+				printf("bms发停机指令 总需求1停机，对所有PCS发停机指令;\n");
+				stopAllPcs();
+			}
 
 			//电池分系统n通讯心跳不更新超过10s（通讯中断），对所有PCS发停机指令;
-			// if(bmsdata_cur[bmsid][pcsid_bms].heartbeat == bmsdata_bak[bmsid][pcsid_bms].heartbeat){
-			// 	if(bams_heartbeat_timer_flag[bmsid][pcsid_bms] == 0){
-			// 		bams_heartbeat_timer[bmsid][pcsid_bms] = 900;
-			// 		bams_heartbeat_timer_flag[bmsid][pcsid_bms] = 1;
-			// 	}
-			// 	if(bams_heartbeat_timer[bmsid][pcsid_bms] <= 0){
-			// 		for(i=0;i<MAX_LCD_NUM;i++){
-			// 			for(j=0;j<MAX_PCS_NUM;j++){
-			// 				if(g_emu_status_lcd.status_pcs[i].flag_start_stop[j] == 0){
-			// 					all_stop_flag=1;
-			// 				}
-			// 				else{
-			// 					all_stop_flag=0;
-			// 					break;
-			// 				}	
-			// 			}
-			// 		}
-			// 		if(all_stop_flag==1)
-			// 				return 0;
+			if(bmsdata_cur[bmsid][pcsid_bms].heartbeat == bmsdata_bak[bmsid][pcsid_bms].heartbeat){
+				if(bams_heartbeat_timer_flag[bmsid][pcsid_bms] == 0){
+					bams_heartbeat_timer[bmsid][pcsid_bms] = 900;
+					bams_heartbeat_timer_flag[bmsid][pcsid_bms] = 1;
+				}
+				if(bams_heartbeat_timer[bmsid][pcsid_bms] <= 0){
+					for(i=0;i<MAX_LCD_NUM;i++){
+						for(j=0;j<MAX_PCS_NUM;j++){
+							if(g_emu_status_lcd.status_pcs[i].flag_start_stop[j] == 0){
+								all_stop_flag=1;
+							}
+							else{
+								all_stop_flag=0;
+								break;
+							}	
+						}
+					}
+					if(all_stop_flag==1)
+							return 0;
 
-			// 			printf("bms发停机指令 电池分系统n通讯心跳不更新超过10s（通讯中断），对所有PCS发停机指令;\n");
-			// 			stopAllPcs();
-			// 		}
-			// }else{
-			// 		bams_heartbeat_timer[bmsid][pcsid_bms] = 0;
-			// 		bams_heartbeat_timer_flag[bmsid][pcsid_bms] = 0;
-			// }
+						printf("bms发停机指令 电池分系统n通讯心跳不更新超过10s（通讯中断），对所有PCS发停机指令;\n");
+						stopAllPcs();
+					}
+			}else{
+					bams_heartbeat_timer[bmsid][pcsid_bms] = 0;
+					bams_heartbeat_timer_flag[bmsid][pcsid_bms] = 0;
+			}
 
 			//电池分系统n需求为0时（PCS禁止充放电）
-			// if(bmsdata_cur[bmsid][pcsid_bms].sys_need == 0){
-			// 	unsigned char a,b;
-			// 	for(a=0;a<2;a++){
-			// 		for(b=0;b<18;b++){
-			// 			if(bmsdata_cur[a][b].sys_need == 1 || bmsdata_cur[a][b].sys_need == 2){
-			// 				lcdPcsCount(a,b,&lcdid1,&lcd_pcs_id1);
-			// 				if(g_emu_status_lcd.status_pcs[lcdid].flag_start_stop[lcd_pcs_id] == 0)
-			// 					return 0;
-			// 				printf("bms发停机指令 电池分系统n需求为0时（PCS禁止充放电）\n");
-			// 				g_emu_action_lcd.flag_start_stop_lcd[lcdid1] = 3;
-			// 				g_emu_action_lcd.action_pcs[lcdid1].flag_start_stop_pcs[lcd_pcs_id1] = 0xaa;
-			// 			}
-			// 		}
-			// 	}
-			// }
+			if(bmsdata_cur[bmsid][pcsid_bms].sys_need == 0){
+				unsigned char a,b;
+				for(a=0;a<2;a++){
+					for(b=0;b<18;b++){
+						if(bmsdata_cur[a][b].sys_need == 1 || bmsdata_cur[a][b].sys_need == 2){
+							lcdPcsCount(a,b,&lcdid1,&lcd_pcs_id1);
+							if(g_emu_status_lcd.status_pcs[lcdid].flag_start_stop[lcd_pcs_id] == 0)
+								return 0;
+							printf("bms发停机指令 电池分系统n需求为0时（PCS禁止充放电）\n");
+							g_emu_action_lcd.flag_start_stop_lcd[lcdid1] = 3;
+							g_emu_action_lcd.action_pcs[lcdid1].flag_start_stop_pcs[lcd_pcs_id1] = 0xaa;
+						}
+					}
+				}
+			}
 
 			
 			
 			// 电池分系统n状态为1、4、5、9、255时（停机、待机、故障、关机、调试中），向对应的PCS发停机指令
-			// if(bmsdata_cur[bmsid][pcsid_bms].sys_status == 1 || bmsdata_cur[bmsid][pcsid_bms].sys_status == 4 || bmsdata_cur[bmsid][pcsid_bms].sys_status == 5 \
-			// || bmsdata_cur[bmsid][pcsid_bms].sys_status == 9 || bmsdata_cur[bmsid][pcsid_bms].sys_status == 255 ){
-			// 	if(g_emu_status_lcd.status_pcs[lcdid].flag_start_stop[lcd_pcs_id] == 0)
-			// 		return 0;
+			if(bmsdata_cur[bmsid][pcsid_bms].sys_status == 1 || bmsdata_cur[bmsid][pcsid_bms].sys_status == 4 || bmsdata_cur[bmsid][pcsid_bms].sys_status == 5 \
+			|| bmsdata_cur[bmsid][pcsid_bms].sys_status == 9 || bmsdata_cur[bmsid][pcsid_bms].sys_status == 255 ){
+				if(g_emu_status_lcd.status_pcs[lcdid].flag_start_stop[lcd_pcs_id] == 0)
+					return 0;
 				
-			// 	printf("bms发停机指令 电池分系统n状态为1、4、5、9、255时（停机、待机、故障、关机、调试中），向对应的PCS发停机指令\n");
-			// 	g_emu_action_lcd.flag_start_stop_lcd[lcdid] = 3;
-			// 	g_emu_action_lcd.action_pcs[lcdid].flag_start_stop_pcs[lcd_pcs_id] = 0xaa;			
-			// }
+				printf("bms发停机指令 电池分系统n状态为1、4、5、9、255时（停机、待机、故障、关机、调试中），向对应的PCS发停机指令\n");
+				g_emu_action_lcd.flag_start_stop_lcd[lcdid] = 3;
+				g_emu_action_lcd.action_pcs[lcdid].flag_start_stop_pcs[lcd_pcs_id] = 0xaa;			
+			}
 
-			/*
-			1.单体正常充放电截止电压区间 2.90V~3.55V，PCS 检测到电池分系统单体最高电压达到3.6V，PCS 应停机或封脉冲；电池分系统单体,最高电压达到 3.63V，PCS 应关机；
-			2.单体正常充放电截止电压区间 2.90V~3.55V，PCS 检测到电池分系统单体最低电压达到2.85V，PCS 应停机或封脉冲；电池分系统单体,最低电压达到 2.75V，PCS 应关机；
-			*/
-			// float single_mx_vol =  (float)bmsdata_cur[bmsid][pcsid_bms].single_mx_vol/1000;
-			// float single_mi_vol =  (float)bmsdata_cur[bmsid][pcsid_bms].single_mi_vol/1000;
+			
+			//1.单体正常充放电截止电压区间 2.90V~3.55V，PCS 检测到电池分系统单体最高电压达到3.6V，PCS 应停机或封脉冲；电池分系统单体,最高电压达到 3.63V，PCS 应关机；
+			//2.单体正常充放电截止电压区间 2.90V~3.55V，PCS 检测到电池分系统单体最低电压达到2.85V，PCS 应停机或封脉冲；电池分系统单体,最低电压达到 2.75V，PCS 应关机；
+			
+			float single_mx_vol =  (float)bmsdata_cur[bmsid][pcsid_bms].single_mx_vol/1000;
+			float single_mi_vol =  (float)bmsdata_cur[bmsid][pcsid_bms].single_mi_vol/1000;
 
-			// printf("bms 最高单体电压：%f  最低单体电压：%f g_emu_status_lcd.status_pcs[%d].flag_start_stop[%d]:%d \n",single_mx_vol,single_mi_vol,lcdid,lcd_pcs_id,g_emu_status_lcd.status_pcs[lcdid].flag_start_stop[lcd_pcs_id]);
-			// if( single_mx_vol>= 3.3 || single_mi_vol <= 2.9){
+			printf("bms 最高单体电压：%f  最低单体电压：%f g_emu_status_lcd.status_pcs[%d].flag_start_stop[%d]:%d \n",single_mx_vol,single_mi_vol,lcdid,lcd_pcs_id,g_emu_status_lcd.status_pcs[lcdid].flag_start_stop[lcd_pcs_id]);
+			if( single_mx_vol>= 3.3 || single_mi_vol <= 2.9){
 				
 
-			// 	printf("bamsaa11 bmsid:%d pcsid_bms:%d lcdid：%d %d g_emu_status_lcd.status_pcs[%d].flag_start_stop[%d]:%d \n",bmsid,pcsid_bms+1,lcdid,lcd_pcs_id,lcdid,lcd_pcs_id,g_emu_status_lcd.status_pcs[lcdid].flag_start_stop[lcd_pcs_id]);
-			// 	if(g_emu_status_lcd.status_pcs[lcdid].flag_start_stop[lcd_pcs_id] == 0)
-			// 		return 0;
+				printf("bamsaa11 bmsid:%d pcsid_bms:%d lcdid：%d %d g_emu_status_lcd.status_pcs[%d].flag_start_stop[%d]:%d \n",bmsid,pcsid_bms+1,lcdid,lcd_pcs_id,lcdid,lcd_pcs_id,g_emu_status_lcd.status_pcs[lcdid].flag_start_stop[lcd_pcs_id]);
+				if(g_emu_status_lcd.status_pcs[lcdid].flag_start_stop[lcd_pcs_id] == 0)
+					return 0;
 				
-			// 	printf("bms发停机指令 单体正常充放电截止电压区间 向对应的PCS发停机指令 lcdid：%d  lcd_pcs_id:%d \n",lcdid,lcd_pcs_id);
-			// 	g_emu_action_lcd.flag_start_stop_lcd[lcdid] = 3;
-			// 	g_emu_action_lcd.action_pcs[lcdid].flag_start_stop_pcs[lcd_pcs_id] = 0xaa;		
-			// }
+				printf("bms发停机指令 单体正常充放电截止电压区间 向对应的PCS发停机指令 lcdid：%d  lcd_pcs_id:%d \n",lcdid,lcd_pcs_id);
+				g_emu_action_lcd.flag_start_stop_lcd[lcdid] = 3;
+				g_emu_action_lcd.action_pcs[lcdid].flag_start_stop_pcs[lcd_pcs_id] = 0xaa;		
+			}
+		*/
 		}
 		break;
 		case _SOC_:

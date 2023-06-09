@@ -19,23 +19,23 @@
 typedef int (*orderToLcd)(int); //输出指令
 
 
-#define Emu_Startup 1				  //【整机】启机命令
-#define Emu_Stop 2					  //【整机】停机命令
-#define Parallel_Away_conversion_en 3 //并转离切换使能
-#define Away_Parallel_conversion_en 4 //离转并切换使能
-#define EMS_SET_MODE 5				  //产品运行模式设置
-#define EMS_VSG_MODE 6				  // VSG工作模式设置
-#define EMS_PQ_MODE 7				  // PQ工作模式设置
-#define BOX_35kV_ON 8				  // 35kV进线柜合闸
-#define BOX_35kV_OFF 9			  // 35kV进线柜分闸
-#define BOX_SwitchD1_ON 10			  //开关柜D1合闸
-#define BOX_SwitchD1_OFF 11			  //开关柜D1分闸
-#define BOX_SwitchD2_ON 12			  //开关柜D2合闸
-#define BOX_SwitchD2_OFF 13			  //开关柜D2分闸
-#define EMS_PW_SETTING 14			  //有功功率
-#define EMS_QW_SETTING 15			  //无功功率
-#define ONE_FM_PW_SETTING 16		  //一次调频有功功率
-#define ONE_FM_QW_SETTING 17		  //一次调频无功功率
+// #define Emu_Startup 1				  //【整机】启机命令
+// #define Emu_Stop 2					  //【整机】停机命令
+// #define Parallel_Away_conversion_en 3 //并转离切换使能
+// #define Away_Parallel_conversion_en 4 //离转并切换使能
+// #define EMS_SET_MODE 5				  //产品运行模式设置
+// #define EMS_VSG_MODE 6				  // VSG工作模式设置
+// #define EMS_PQ_MODE 7				  // PQ工作模式设置
+// #define BOX_35kV_ON 8				  // 35kV进线柜合闸
+// #define BOX_35kV_OFF 9			  // 35kV进线柜分闸
+// #define BOX_SwitchD1_ON 10			  //开关柜D1合闸
+// #define BOX_SwitchD1_OFF 11			  //开关柜D1分闸
+// #define BOX_SwitchD2_ON 12			  //开关柜D2合闸
+// #define BOX_SwitchD2_OFF 13			  //开关柜D2分闸
+// #define EMS_PW_SETTING 14			  //有功功率
+// #define EMS_QW_SETTING 15			  //无功功率
+// #define ONE_FM_PW_SETTING 16		  //一次调频有功功率
+// #define ONE_FM_QW_SETTING 17		  //一次调频无功功率
 
 
 

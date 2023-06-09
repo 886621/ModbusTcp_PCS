@@ -99,4 +99,6 @@ int modbus_tcp_main(void *para_app);
 
 int SubscribeLcdData(unsigned char type, outData2Other pfun);
 int ykOrderFromBms(unsigned char type, YK_PARA *pYkPara, CallbackYK pfun);
+
+
 #endif
