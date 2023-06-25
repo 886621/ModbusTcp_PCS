@@ -22,6 +22,8 @@
 #define SLAVE 2
 #define MAX_YCDATA_NUM 32
 
+#define TEST_PLC_D1D2 0  //5.25新增逻辑（未在现场测试）
+
 enum LIB_NAME // 模块名称编号
 {
 
@@ -56,9 +58,11 @@ typedef struct {
     int balance_rate;
     int sys_max_pw;
     int flag_init_lcd;	
-////
-//    char bams1_pcsid[8];
-//    char bams2_pcsid[8];
+
+	//BMS参数 用于lcd模块做判断对pcs停机
+	int Maximum_individual_voltage; //电池分系统 n 单体最高电压  （变比（十进制）x*1000）
+	int Minimum_individual_voltage;//电池分系统 n 单体最低电压  （变比（十进制）x*1000）
+
 
 //系统参数
 	char iflog;//是否将协议日志记录到flash中
@@ -66,6 +70,7 @@ typedef struct {
 	TDateTime StartLogDay;
 	int logdays;
 	char main_ver[6];
+
 
 
 }pconf;
@@ -84,8 +89,10 @@ typedef int (*outData2Other)(unsigned char, void *pdata); //输出数据签名
 typedef int (*CallbackYK)(unsigned char, void *pdata);	  //遥控回调函数签名
 extern CallbackYK pbackBmsFun;
 
+#if TEST_PLC_D1D2
 typedef int (*YKOrder)(unsigned char, YK_PARA *, CallbackYK);
 extern YKOrder ykOrder_pcs_plc;
+#endif
 
 
 typedef struct _post_list_t

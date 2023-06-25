@@ -100,8 +100,7 @@ int SaveYcData(int id_thread, int pcsid, unsigned short *pyc, unsigned char len)
 	}
 	id += pcsid;
 	// id = MAX_PCS_NUM * id_thread + pcsid;
-
-	printf("saveYcData id_thread=%d pcsid=%d id=%d num=%d\n", id_thread, pcsid, id, len);
+	
 
 	//  if(memcmp((char*)g_YcData[id].pcs_data,(char*)pyc,len))
 	{
@@ -114,7 +113,10 @@ int SaveYcData(int id_thread, int pcsid, unsigned short *pyc, unsigned char len)
 		outputdata(_YC_, id);
 	}
 
+	printf("saveYcData id_thread=%d pcsid=%d id=%d num=%d\n", id_thread, pcsid, id, len);
 	myprintbuf(len, (unsigned char *)g_YcData[id - 1].pcs_data);
+
+	// myprintbuf(len, (unsigned char *)g_YcData[id - 1].pcs_data);
 
 	temp_pw = g_YcData[id - 1].pcs_data[Active_power];
 	pw = (temp_pw % 256) * 256 + temp_pw / 256;
@@ -124,27 +126,24 @@ int SaveYcData(int id_thread, int pcsid, unsigned short *pyc, unsigned char len)
 	temp_aw = g_YcData[id - 1].pcs_data[Apparent_power];
     //temp_aw=0xf9ff;
 	aw = (temp_aw % 256) * 256 + temp_aw / 256;
+
 	printf("遥测得到的有功功率 lcdid=%d pcsid=%d pw=%d %x\n", id_thread, pcsid, pw, g_YcData[id - 1].pcs_data[Active_power]);
 	printf("遥测得到的无功功率 lcdid=%d pcsid=%d qw=%d %x\n", id_thread, pcsid, qw, g_YcData[id - 1].pcs_data[Reactive_power]);
 	printf("遥测得到的视在功率 lcdid=%d pcsid=%d aw=%d %x \n", id_thread, pcsid, aw, g_YcData[id - 1].pcs_data[Apparent_power]);
 	//  checkQw(id_thread,pcsid,qw);
-	printf(" aaaaaaaaaaa flag_start_stop[%d]:%d\n",pcsid,g_emu_status_lcd.status_pcs[id_thread].flag_start_stop[pcsid]);
 
 	// checkBmsStatus(id_thread,pcsid,id-1);
 
 
 	if (g_emu_status_lcd.status_pcs[id_thread].flag_start_stop[pcsid] == 1)
 	{
-		printf("test aaa\n");
 		if (g_emu_op_para.flag_soc_bak == 1)
 		{
-			printf("test bbb\n");
 			countPwAdj(id_thread, pcsid, pw, 1);
 			countQwAdj(id_thread, pcsid, qw, 1);
 		}
 		else
 		{
-			printf("test ccc\n");
 			countPwAdj(id_thread, pcsid, pw, 0);
 			countQwAdj(id_thread, pcsid, qw, 0);
 		}
@@ -201,7 +200,7 @@ int SaveYcData(int id_thread, int pcsid, unsigned short *pyc, unsigned char len)
 
 	if (flag_recv_lcd == g_flag_RecvNeed_LCD)
 	{
-		printf("888888888888 pcsid=%d\n", pcsid);
+		// printf("888888888888 pcsid=%d\n", pcsid);
 		//	for (i = 0; i < MAX_PCS_NUM; i++)
 		flag_recv_lcd = 0;
 		// if (setStatusStart_Stop() == 0)
@@ -225,8 +224,14 @@ int SaveYxData(int id_thread, int pcsid, unsigned short *pyx, unsigned char len)
 		id += pPara_Modtcp->pcsnum[i];
 	}
 	id += pcsid;
-	myprintbuf(len, (unsigned char *)pyx);
-	printf("saveYxData id_thread=%d pcsid=%d id=%d num=%d para_61850.flag_RecvNeed_LCD:%d\n", id_thread, pcsid, id, len,para_61850.flag_RecvNeed_LCD);
+	// myprintbuf(len, (unsigned char *)pyx);
+
+	flag_recv_pcs[id_thread] |= (1 << (pcsid - 1));
+	if (flag_recv_pcs[id_thread] == flag_RecvNeed_PCS[id_thread])
+	{
+		flag_recv_lcd |= (1 << id_thread);
+	}
+
 	//  if(memcmp((char*)g_YxData[id].pcs_data,(char*)pyx,len))
 	{
 		g_YxData[id - 1].sn = id - 1;
@@ -241,10 +246,14 @@ int SaveYxData(int id_thread, int pcsid, unsigned short *pyx, unsigned char len)
 			g_YxData[id - 1].pcs_data[i] = b1 * 256 + b2;
 		}
 		// memcpy((char *)g_YxData[id - 1].pcs_data, (char *)pyx, len);
-		myprintbuf(len, (unsigned char *)g_YxData[id - 1].pcs_data);
+		
 		temp = g_YxData[id - 1].pcs_data[u16_InvRunState1];
 
-		printf("lcdid=%d pcsid=%d g_YxData[id - 1].pcs_data[u16_InvRunState1]=%x \n", id_thread, pcsid, temp);
+		printf("saveYxData id_thread=%d pcsid=%d id=%d num=%d g_flag_RecvNeed_LCD:%d flag_recv_lcd:%d\n", id_thread, pcsid, id, len,g_flag_RecvNeed_LCD,flag_recv_lcd);
+		myprintbuf(len, (unsigned char *)g_YxData[id - 1].pcs_data);
+
+
+		// printf("lcdid=%d pcsid=%d g_YxData[id - 1].pcs_data[u16_InvRunState1]=%x \n", id_thread, pcsid, temp);
 		if ((temp & (1 << bPcsStoped)) == 0 && (temp & (1 << bPcsRunning)) != 0) //当前pcs已经启动
 		{
 			if (g_emu_op_para.flag_start == 0)
@@ -271,19 +280,15 @@ int SaveYxData(int id_thread, int pcsid, unsigned short *pyx, unsigned char len)
 
 		outputdata(_YX_, id);
 	}
-	flag_recv_pcs[id_thread] |= (1 << (pcsid - 1));
 
-	if (flag_recv_pcs[id_thread] == flag_RecvNeed_PCS[id_thread])
-	{
-		flag_recv_lcd |= (1 << id_thread);
-	}
+	
 
-	printf("pcsid=%d flag_recv_pcs[%d]=%x flag_RecvNeed_PCS[%d]=%x flag_recv_lcd=%x g_flag_RecvNeed_LCD=%x\n ", pcsid, id_thread, flag_recv_pcs[id_thread], id_thread, flag_RecvNeed_PCS[id_thread], flag_recv_lcd, g_flag_RecvNeed_LCD);
+	// printf("pcsid=%d flag_recv_pcs[%d]=%x flag_RecvNeed_PCS[%d]=%x flag_recv_lcd=%x g_flag_RecvNeed_LCD=%x\n ", pcsid, id_thread, flag_recv_pcs[id_thread], id_thread, flag_RecvNeed_PCS[id_thread], flag_recv_lcd, g_flag_RecvNeed_LCD);
 	if (flag_recv_lcd == g_flag_RecvNeed_LCD)
 	{
 		int err_num = 0;
 
-		printf("99999999999999999999\n");
+		// printf("99999999999999999999\n");
 		for (i = 0; i < total_pcsnum; i++)
 		{
 			// printf("g_YxData[i].pcs_data[u16_InvRunState1]:%d \n",g_YxData[i].pcs_data[u16_InvRunState1]);

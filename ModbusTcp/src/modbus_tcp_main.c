@@ -43,8 +43,11 @@ int modbus_tcp_main(void *para_app)
 	pPara_Modtcp->lcdnum_real = 0;
 	pPara_Modtcp->lcdnum_err = 0;
 	pPara_Modtcp->balance_rate = pconfig->balance_rate;
+	pPara_Modtcp->Maximum_individual_voltage = (float)pconfig->Maximum_individual_voltage/1000;
+	pPara_Modtcp->Minimum_individual_voltage = (float)pconfig->Minimum_individual_voltage/1000;
 	printf("LCD 模块启动 系统定义最大功率=%d\n", pconfig->sys_max_pw);
-
+	printf("LCD 模块启动 最高单体电压=%f  最低单体电压=%f\n",pPara_Modtcp->Maximum_individual_voltage,pPara_Modtcp->Minimum_individual_voltage);
+	printf("LCD 模块启动 最高单体电压=%d  最低单体电压=%d\n",pconfig->Maximum_individual_voltage,pconfig->Minimum_individual_voltage);
 
 	Plc_Init();
 	initInterface61850();

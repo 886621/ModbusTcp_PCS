@@ -93,16 +93,19 @@ void startAllPcs(void)
 	int i;
 	int flag = 0;
 	YK_PARA para;
-	
+#if TEST_PLC_D1D2
+	//整机开机前检查D1、D2为分闸的情况下合闸
 	if(PLC_EMU_BOX_SwitchD1==0){
 		para.item = BOX_SwitchD1_ON;
+		para.data[0] = 1;
 		ykOrder_pcs_plc(_BMS_PLC_YK_, &para, NULL);
 	}
-
 	if(PLC_EMU_BOX_SwitchD2==0){
 		para.item = BOX_SwitchD2_ON;
+		para.data[0] = 1;
 		ykOrder_pcs_plc(_BMS_PLC_YK_, &para, NULL);
 	}
+#endif
 
 	for (i = 0; i < pPara_Modtcp->lcdnum_cfg; i++)
 	{
@@ -456,13 +459,14 @@ int handlePcsYkFromEms(YK_PARA *pYkPara)
 	// 	goto endPcsYk;
 	// }
 
-	//  ret = ckeckCurPcsStartEn(lcdid, pcsid);
+	int ret = ckeckCurPcsStartEn(lcdid, pcsid);
 
-	// if (ret != 0)
-	// {
-	// 	printf("lcdid=%d pcsid=%d 不满足启动条件，ret=%d\n", lcdid, pcsid, ret);
-	// 	goto endPcsYk;
-	// }
+	if (ret != 0)
+	{
+		printf("lcdid=%d pcsid=%d 不满足启动条件，ret=%d\n", lcdid, pcsid, ret);
+		return;
+	}
+
 	printf("lcdid=%d pcsid=%d 满足启动条件，等待启动\n", lcdid, pcsid);
 	// if (lcd_state[lcdid] == LCD_RUNNING)
 	// {

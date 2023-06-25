@@ -37,6 +37,10 @@ typedef struct
 	char server_ip[6][64];
 	unsigned short server_port[6];
 	unsigned short balance_rate;
+
+	//BMS参数 用于lcd模块做判断对pcs停机
+	float Maximum_individual_voltage; //电池分系统 n 单体最高电压  
+	float Minimum_individual_voltage;//电池分系统 n 单体最低电压  
 } PARA_MODTCP; //系统运行参数  从主控传到Modbus-Tcp模块的结构
 
 typedef struct

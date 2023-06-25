@@ -164,7 +164,9 @@ int recvfromBams(unsigned char pcsid_bms, unsigned char type, void *pdata)
 			float single_mx_vol =  (float)bmsdata_cur[bmsid][pcsid_bms].single_mx_vol/1000;
 			float single_mi_vol =  (float)bmsdata_cur[bmsid][pcsid_bms].single_mi_vol/1000;
 			printf("tttaaa bms 最高单体电压：%f  最低单体电压：%f lcdid:%d pcsid:%d flag_start_stop:%d\n",single_mx_vol,single_mi_vol,lcdid,lcd_pcs_id,g_emu_status_lcd.status_pcs[lcdid].flag_start_stop[lcd_pcs_id]);
-			if( single_mx_vol>= 3.55 || single_mi_vol <= 2.9){
+			printf("tttbbb 配置文件 最高单体电压：%f  最低单体电压：%f \n",pPara_Modtcp->Maximum_individual_voltage,pPara_Modtcp->Minimum_individual_voltage);
+			// if( single_mx_vol>= 3.55 || single_mi_vol <= 2.9){
+			if( single_mx_vol>= pPara_Modtcp->Maximum_individual_voltage || single_mi_vol <= pPara_Modtcp->Minimum_individual_voltage){
 					printf("tttaaa1111 bms 最高单体电压：%f  最低单体电压：%f lcdid:%d pcsid:%d flag_start_stop:%d\n",single_mx_vol,single_mi_vol,lcdid,lcd_pcs_id,g_emu_status_lcd.status_pcs[lcdid].flag_start_stop[lcd_pcs_id]);
 					if(((bms_ov_status[lcdid] & (1 << lcd_pcs_id)) == 0) && g_emu_status_lcd.status_pcs[lcdid].flag_start_stop[lcd_pcs_id] == 1){
 						bms_ov_status[lcdid] |= (1 << lcd_pcs_id);

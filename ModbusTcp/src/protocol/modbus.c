@@ -64,8 +64,9 @@ PcsData_send g_send_data[MAX_LCD_NUM];
 pconf conf;
 pconf *pconfig = &conf;
 
-int revcLcdNum = 1;
-
+#if TEST_PLC_D1D2
+int revcLcdNum = 0;
+#endif
 // int lcd_state[] = {LCD_INIT, LCD_INIT, LCD_INIT, LCD_INIT, LCD_INIT, LCD_INIT};
 int lcd_state[] = {LCD_SET_TIME, LCD_SET_TIME, LCD_SET_TIME, LCD_SET_TIME, LCD_SET_TIME, LCD_SET_TIME};
 
@@ -729,28 +730,31 @@ int AnalysModbus(int id_thread, unsigned char *pdata, int len,int flag) // unsig
 				curPcsId[id_thread] = 0;
 				g_emu_action_lcd.flag_start_stop_lcd[id_thread] = 0;
 				lcd_state[id_thread] = LCD_RUNNING;
-
+#if TEST_PLC_D1D2
+				//整机关机完毕后检查D1、D2为合闸的情况下分闸
 				if(val == 0x00FF){
-					revcLcdNum++;
-					if(revcLcdNum == pPara_Modtcp->lcdnum_cfg){
+					revcLcdNum |= (1 << id_thread);
+					printf("整机开关机: %x revcLcdNum：%d\n",val,revcLcdNum);
+					if(revcLcdNum == g_flag_RecvNeed_LCD){
 						YK_PARA para;
 						if(PLC_EMU_BOX_SwitchD1 >0){
 							para.item = BOX_SwitchD1_OFF;
+							para.data[0] = 1;
 							ykOrder_pcs_plc(_BMS_PLC_YK_, &para, NULL);
-							printf("整机关机plc D1分闸 \n");
+							printf("整机关机plc D1分闸 para.item:%d\n",para.item);
 						}
 
 						if(PLC_EMU_BOX_SwitchD2 >0){
 							para.item = BOX_SwitchD2_OFF;
+							para.data[0] = 1;
 							ykOrder_pcs_plc(_BMS_PLC_YK_, &para, NULL);
-							printf("整机关机plc D2分闸 \n");
+							printf("整机关机plc D2分闸 para.item：%d\n",para.item);
 						}	
-
-						revcLcdNum = 1;
+						revcLcdNum = 0;
 					}
 					printf("整机开关机: %x revcLcdNum：%d\n",val,revcLcdNum);
 				}
-				
+#endif
 				printf("cpp启动或停止LCD[%d]成功\n", id_thread);
 			}
 		}
@@ -945,7 +949,7 @@ int doFun03Tasks(int id_thread, int *p_pcsid)
 
 	createFun03Frame(id_thread, p_pcsid, &lensend, sendbuf);
 
-	myprintbuf(lensend, sendbuf);
+	// myprintbuf(lensend, sendbuf);
 
 	if (send(modbus_client_sockptr[id_thread], sendbuf, lensend, 0) < 0)
 	{

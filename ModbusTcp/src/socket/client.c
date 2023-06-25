@@ -432,6 +432,11 @@ write_loop:
 		if (wait_flag[id_thread] == 1)
 		{
 			waittime++;
+			if (waittime == 1000)
+			{
+				printf("pcs写入线程 wait_flag[id_thread] == 1");
+				waittime = 0;
+			}
 			// if (waittime == 1000)
 			// {
 			// 	wait_flag = 0;
@@ -494,7 +499,7 @@ static int recvFrame(int fd, int qid, MyData *recvbuf)
 	}
 		
 	recvbuf->len = readlen;
-	myprintbuf(readlen, recvbuf->buf);
+	// myprintbuf(readlen, recvbuf->buf);
 	msg.msgtype = 1;
 	memcpy((char *)&msg.data, recvbuf->buf, readlen);
 	sleep(1);
