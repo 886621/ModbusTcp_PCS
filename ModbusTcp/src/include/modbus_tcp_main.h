@@ -5,7 +5,7 @@
 #include "lib_time.h"
 #include "logicAndControl.h"
 
-//#define ifDebug
+// #define ifDebug
 
 #define _ZJYX_ 0
 #define _YX_ 1
@@ -22,7 +22,7 @@
 #define SLAVE 2
 #define MAX_YCDATA_NUM 32
 
-#define TEST_PLC_D1D2 0  //5.25新增逻辑（未在现场测试）
+#define TEST_PLC_D1D2 0 // 5.25新增逻辑（未在现场测试）
 
 enum LIB_NAME // 模块名称编号
 {
@@ -45,35 +45,37 @@ enum LIB_NAME // 模块名称编号
 // 	unsigned short server_port;
 // } PARA_FROM_EMU_APP; //从主控传到Modbus-Tcp模块的结构
 
-
-typedef struct {
-	int firm_id;//公司编号
-//LCD参数
-	char  lcd_server_ip[6][64];
+typedef struct
+{
+	int firm_id; // 公司编号
+	// LCD参数
+	char lcd_server_ip[6][64];
 	u32 lcd_server_port[6];
-    int lcd_num;
-    int pcs_num;
-    char plc_server_ip[64];
-    u32 plc_server_port;
-    int balance_rate;
-    int sys_max_pw;
-    int flag_init_lcd;	
+	int lcd_num;
+	int pcs_num;
+	char plc_server_ip[64];
+	u32 plc_server_port;
+	int balance_rate;
+	int sys_max_pw;
+	int flag_init_lcd;
 
-	//BMS参数 用于lcd模块做判断对pcs停机
-	int Maximum_individual_voltage; //电池分系统 n 单体最高电压  （变比（十进制）x*1000）
-	int Minimum_individual_voltage;//电池分系统 n 单体最低电压  （变比（十进制）x*1000）
+	// BMS参数 用于lcd模块做判断对pcs停机
+	int Maximum_individual_voltage; // 电池分系统 n 单体最高电压
+	int Minimum_individual_voltage; // 电池分系统 n 单体最低电压
 
+	int bams_num;
+	////
+	//    char bams1_pcsid[8];
+	//    char bams2_pcsid[8];
 
-//系统参数
-	char iflog;//是否将协议日志记录到flash中
-	char hardware_ver;//硬件版本
+	// 系统参数
+	char iflog;		   // 是否将协议日志记录到flash中
+	char hardware_ver; // 硬件版本
 	TDateTime StartLogDay;
 	int logdays;
 	char main_ver[6];
 
-
-
-}pconf;
+} pconf;
 typedef struct
 {
 	int sn;
@@ -83,17 +85,16 @@ typedef struct
 	unsigned char data_len;
 } LCD_YC_YX_DATA; //
 
-//回调
+// 回调
 
-typedef int (*outData2Other)(unsigned char, void *pdata); //输出数据签名
-typedef int (*CallbackYK)(unsigned char, void *pdata);	  //遥控回调函数签名
+typedef int (*outData2Other)(unsigned char, void *pdata); // 输出数据签名
+typedef int (*CallbackYK)(unsigned char, void *pdata);	  // 遥控回调函数签名
 extern CallbackYK pbackBmsFun;
 
 #if TEST_PLC_D1D2
 typedef int (*YKOrder)(unsigned char, YK_PARA *, CallbackYK);
 extern YKOrder ykOrder_pcs_plc;
 #endif
-
 
 typedef struct _post_list_t
 {
@@ -106,6 +107,5 @@ int modbus_tcp_main(void *para_app);
 
 int SubscribeLcdData(unsigned char type, outData2Other pfun);
 int ykOrderFromBms(unsigned char type, YK_PARA *pYkPara, CallbackYK pfun);
-
 
 #endif

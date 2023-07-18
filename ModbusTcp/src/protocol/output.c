@@ -139,8 +139,8 @@ int SaveYcData(int id_thread, int pcsid, unsigned short *pyc, unsigned char len)
 	{
 		if (g_emu_op_para.flag_soc_bak == 1)
 		{
-			countPwAdj(id_thread, pcsid, pw, 1);
-			countQwAdj(id_thread, pcsid, qw, 1);
+			countPwAdj(id_thread, pcsid, pw, 0);
+			countQwAdj(id_thread, pcsid, qw, 0);
 		}
 		else
 		{
