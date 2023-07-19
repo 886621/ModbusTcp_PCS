@@ -471,13 +471,13 @@ int handlePcsYkFromEms(YK_PARA *pYkPara)
 	// 	goto endPcsYk;
 	// }
 
-	int ret = (lcdid, pcsid);
+	// int ret = (lcdid, pcsid);
 
-	if (ret != 0)
-	{
-		printf("lcdid=%d pcsid=%d 不满足启动条件，ret=%d\n", lcdid, pcsid, ret);
-		return;
-	}
+	// if (ret != 0)
+	// {
+	// 	printf("lcdid=%d pcsid=%d 不满足启动条件，ret=%d\n", lcdid, pcsid, ret);
+	// 	return;
+	// }
 
 	printf("lcdid=%d pcsid=%d 满足启动条件，等待启动\n", lcdid, pcsid);
 	// if (lcd_state[lcdid] == LCD_RUNNING)

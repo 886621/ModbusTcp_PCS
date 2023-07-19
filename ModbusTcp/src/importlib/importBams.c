@@ -152,15 +152,19 @@ void setting_ov_status(unsigned char bmsid, unsigned char pcsid_bms, unsigned sh
 	*/
 	if (single_mx_vol >= pPara_Modtcp->Maximum_individual_voltage || single_mi_vol <= pPara_Modtcp->Minimum_individual_voltage)
 	{
-		if (single_mx_vol >= pPara_Modtcp->Maximum_individual_voltage)
-			time_now();
+		if (single_mx_vol >= pPara_Modtcp->Maximum_individual_voltage){
+			
 			printf("setting_ov_status aaabbb single_mx_vol=%d single_mi_vol:%d pPara_Modtcp->Maximum_individual_voltage=%d \n", single_mx_vol,single_mi_vol, pPara_Modtcp->Maximum_individual_voltage);
+		
+		}
 		else
 		{
 		}
 
 		if (g_emu_status_lcd.status_pcs[lcdid].flag_start_stop[lcd_pcs_id] == 1)
 		{
+			time_now();
+			printf("setting_ov_status aaabbbcccc\n");
 			bms_ov_status_temp[lcdid] |= (1 << lcd_pcs_id);
 		}
 	}

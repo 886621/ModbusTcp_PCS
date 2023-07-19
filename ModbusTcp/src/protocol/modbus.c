@@ -301,16 +301,17 @@ int SetLcdPWFun10(int id_thread)
 	int pos = 0;
 	int i;
 	regaddr_start = pqpcs_pw_set_1[0];
-	val = g_emu_op_para.pq_pw_total / total_pcsnum ;
 
+	val = g_emu_op_para.pq_pw_total / total_pcsnum ;
+	printf("g_emu_op_para.pq_pw_total:%d total_pcsnum:%d\n",g_emu_op_para.pq_pw_total,total_pcsnum);
 	// if (g_emu_op_para.err_num < total_pcsnum)
 	// 	val = g_emu_op_para.pq_pw_total / (total_pcsnum - g_emu_op_para.err_num);
 	// else
 	// 	val = 0;
 
-	if (val > 1670)
+	if ((short)val > 1670)
 		val = 1670;
-	else if (val < -1670)
+	else if ((short)val < -1670)
 		val = -1670;
 
 	sendbuf[pos++] = (unsigned char)(g_num_frame[id_thread] / 256);
