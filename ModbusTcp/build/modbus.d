@@ -1,4 +1,4 @@
-/media/sf_work/ZGEMU_tc-230708/ModbusTcp_PCS/ModbusTcp_PCS/ModbusTcp/build/modbus.o: \
+/media/sf_work/ZGEMU_tc-230708/ModbusTcp_PCS.bak2/ModbusTcp_PCS/ModbusTcp_PCS/ModbusTcp_PCS/ModbusTcp/build/modbus.o: \
  src/protocol/modbus.c src/protocol/modbus.h \
  src/include/modbus_tcp_main.h src/include/share_type.h \
  src/include/lib_time.h src/protocol/logicAndControl.h \

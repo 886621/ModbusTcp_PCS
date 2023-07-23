@@ -114,8 +114,11 @@ enum LCD_WORK_STATE // LCD当前工作状态
 	LCD_ADJUST_PCS_QW = 30,	   // 按策略要求调节无功功率
 
 	LCD_PQ_STP_PWVAL_ALL = 31, // EMS下发整机有功功率，LCD调节
-	LCD_DO_NOTHING = 0xfe,	   // 什么都不做
-	LCD_RUNNING = 0xff,		   // 正常工作中，循环抄取遥信遥测
+	LCD_PCS_START_ALL = 32,	   // 整机启动所有pcs
+
+	LCD_PCS_STOP_YXERR = 33, // 遥信故障情况下关机
+	LCD_DO_NOTHING = 0xfe,	 // 什么都不做
+	LCD_RUNNING = 0xff,		 // 正常工作中，循环抄取遥信遥测
 };
 // <<<<<<< HEAD
 

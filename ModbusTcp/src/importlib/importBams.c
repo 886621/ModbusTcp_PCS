@@ -131,7 +131,7 @@ int lcdPcsCount(unsigned char bmsid, unsigned char pcsid_bms, unsigned char *pLc
 // 	*pLcd_pcs_id = lcd_pcs_id - 1;
 // 	return 0;
 // }
-void setting_ov_status(unsigned char bmsid, unsigned char pcsid_bms, unsigned short single_mx_vol, unsigned short single_mi_vol)
+void setting_ov_status(unsigned char bmsid, unsigned char pcsid_bms, unsigned short single_mx_vol, unsigned short single_mi_vol, unsigned short sys_status)
 {
 
 	unsigned char lcdid = 0, lcd_pcs_id = 0;
@@ -150,17 +150,21 @@ void setting_ov_status(unsigned char bmsid, unsigned char pcsid_bms, unsigned sh
 		1.单体正常充放电截止电压区间 2.90V~3.55V，PCS 检测到电池分系统单体最高电压达到3.6V，PCS 应停机或封脉冲；电池分系统单体,最高电压达到 3.63V，PCS 应关机；
 		2.单体正常充放电截止电压区间 2.90V~3.55V，PCS 检测到电池分系统单体最低电压达到2.85V，PCS 应停机或封脉冲；电池分系统单体,最低电压达到 2.75V，PCS 应关机；
 	*/
-	if (single_mx_vol >= pPara_Modtcp->Maximum_individual_voltage || single_mi_vol <= pPara_Modtcp->Minimum_individual_voltage)
+	if (single_mx_vol >= pPara_Modtcp->Maximum_individual_voltage || single_mi_vol <= pPara_Modtcp->Minimum_individual_voltage || sys_status == 5)
 	{
-		if (single_mx_vol >= pPara_Modtcp->Maximum_individual_voltage){
-			
-			printf("setting_ov_status aaabbb single_mx_vol=%d single_mi_vol:%d pPara_Modtcp->Maximum_individual_voltage=%d \n", single_mx_vol,single_mi_vol, pPara_Modtcp->Maximum_individual_voltage);
-		
+		if (single_mx_vol >= pPara_Modtcp->Maximum_individual_voltage)
+		{
+
+			printf("setting_ov_status aaabbb single_mx_vol=%d  pPara_Modtcp->Maximum_individual_voltage=%d \n", single_mx_vol, pPara_Modtcp->Maximum_individual_voltage);
+		}
+		else if (single_mi_vol <= pPara_Modtcp->Minimum_individual_voltage)
+		{
+			printf("setting_ov_status single_mi_vol:%d pPara_Modtcp->Maximum_individual_voltage=%d \n", single_mi_vol, pPara_Modtcp->Maximum_individual_voltage);
 		}
 		else
 		{
+			printf("出现电池簇故障！！！\n");
 		}
-
 		if (g_emu_status_lcd.status_pcs[lcdid].flag_start_stop[lcd_pcs_id] == 1)
 		{
 			time_now();
@@ -226,8 +230,8 @@ int recvfromBams(unsigned char pcsid_bms, unsigned char type, void *pdata)
 
 		if (g_emu_op_para.num_pcs_bms[0] > 0 && g_emu_op_para.num_pcs_bms[1] > 0)
 		{
-			printf("recvfromBams g_emu_op_para.num_pcs_bms[0]=%d  g_emu_op_para.num_pcs_bms[1]=%d\n", g_emu_op_para.num_pcs_bms[0], g_emu_op_para.num_pcs_bms[1]);
-			setting_ov_status(bmsid, pcsid_bms, bmsdata_cur[bmsid][pcsid_bms].single_mx_vol, bmsdata_cur[bmsid][pcsid_bms].single_mi_vol);
+			printf("recvfromBams g_emu_op_para.num_pcs_bms[0]=%d  g_emu_op_para.num_pcs_bms[1]=%d \n", g_emu_op_para.num_pcs_bms[0], g_emu_op_para.num_pcs_bms[1]);
+			setting_ov_status(bmsid, pcsid_bms, bmsdata_cur[bmsid][pcsid_bms].single_mx_vol, bmsdata_cur[bmsid][pcsid_bms].single_mi_vol, bmsdata_cur[bmsid][pcsid_bms].sys_status);
 		}
 		total_temp = 0;
 		for (i = 0; i < pPara_Modtcp->bams_num; i++)

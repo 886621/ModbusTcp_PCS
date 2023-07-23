@@ -112,6 +112,8 @@ int countPwAdj(int lcdid, int pcsid, short PW, int flag_soc);
 int setStatusStart_Stop(int lcdid);
 int findCurPcsidForStart_Stop(int id_thread);
 
+void time_now(void);
+
 // int checkBmsStatus(int lcdid, int pcsid,int sn);
 
 #endif

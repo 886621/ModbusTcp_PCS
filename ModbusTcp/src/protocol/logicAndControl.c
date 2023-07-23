@@ -118,6 +118,11 @@ void startAllPcs(void)
 		{
 			flag = 1;
 			printf("LCD[%d] 立即启动 startAllPcs lcd_state[i]=%d\n", i, lcd_state[i]);
+
+			// if (g_emu_op_para.err_num != 0)
+			// 	lcd_state[i] = LCD_PCS_START;
+			// else
+			// 	lcd_state[i] = LCD_PCS_START_ALL;
 			lcd_state[i] = LCD_PCS_START;
 			curTaskId[i] = 0;
 			curPcsId[i] = 0;
@@ -129,9 +134,8 @@ void startAllPcs(void)
 			g_emu_action_lcd.flag_start_stop_lcd[i] = 1;
 		}
 	}
-
-	//		pbackBmsFun(_BMS_YK_, (void *)flag);
 }
+	//		pbackBmsFun(_BMS_YK_, (void *)flag);
 
 void stopAllPcs(void)
 {
@@ -512,12 +516,12 @@ int findCurPcsForStart(int lcdid, int pcsid)
 
 	for (i = pcsid; i < pPara_Modtcp->pcsnum[lcdid]; i++)
 	{
-		if (g_emu_status_lcd.status_pcs[lcdid].flag_start_stop[pcsid] == 0)
+		if (g_emu_status_lcd.status_pcs[lcdid].flag_start_stop[i] == 0 && g_emu_status_lcd.status_pcs[lcdid].flag_err[i] == 0)
 		{
 			break;
 		}
 		else
-			printf("lcdid=%d, pcsid=%d 已经启动\n", lcdid, pcsid);
+			printf("lcdid=%d, pcsid=%d 已经启动 或发生故障\n", lcdid, pcsid);
 	}
 	if (i == pPara_Modtcp->pcsnum[lcdid])
 	{
@@ -965,6 +969,9 @@ void initEmuParaData(void) // 初始化EMU参数和数据
 	memset((unsigned char *)&g_emu_adj_lcd, 0, sizeof(EMU_ADJ_LCD));
 	memset((unsigned char *)&g_emu_action_lcd, 0, sizeof(EMU_ACTION_LCD));
 	memset((unsigned char *)&g_emu_status_lcd, 0, sizeof(EMU_STATUS_LCD));
+
+	memset((unsigned char *)&bmsdata_cur, 0, sizeof(BmsData_Newest));
+	memset((unsigned char *)&bmsdata_bak, 0, sizeof(BmsData_Newest));
 }
 
 // int lcdPcsCount(unsigned char bmsid,unsigned char pcsid_bms,unsigned char *pLcdid,unsigned char *pLcd_pcs_id){

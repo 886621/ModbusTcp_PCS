@@ -25,6 +25,8 @@ int modbus_client_sockptr[MAX_LCD_NUM];
 MyData clent_data_temp[MAX_LCD_NUM];
 int g_comm_qmegid[MAX_LCD_NUM];
 
+// int conn_flag = {0,0,0,0,0,0};
+
 unsigned int g_num_frame[] = {1, 1, 1, 1, 1, 1};
 int send_heat_beat(int id_thread)
 {
@@ -42,16 +44,17 @@ int send_heat_beat(int id_thread)
 	return ret;
 }
 
-void time_now(void){
+void time_now(void)
+{
 	TDateTime tm_now; //,EndLogDay;
 	read_current_datetime(&tm_now);
 	printf("pcs系统 时间为: %d-%d-%d %d:%d:%d\n",
-		tm_now.Year,
-		tm_now.Month,
-		tm_now.Day,
-		tm_now.Hour,
-		tm_now.Min,
-		tm_now.Sec);
+		   tm_now.Year,
+		   tm_now.Month,
+		   tm_now.Day,
+		   tm_now.Hour,
+		   tm_now.Min,
+		   tm_now.Sec);
 }
 void RunAccordingtoStatus(int id_thread)
 {
@@ -139,6 +142,13 @@ void RunAccordingtoStatus(int id_thread)
 	{
 		// 整机设置LCD下所有pcs有功功率
 		ret = SetLcdPWFun10(id_thread);
+	}
+	break;
+
+	case LCD_PCS_START_ALL:
+	{
+		// 整机（所有pcs）启停
+		ret = StartPcsFun10(id_thread);
 	}
 	break;
 	case LCD_PQ_STP_QWVAL:
@@ -306,6 +316,37 @@ void RunAccordingtoStatus(int id_thread)
 		}
 	}
 	break;
+	case LCD_PCS_STOP_YXERR:
+	{
+		unsigned short regaddr; // = pq_pcspw_set[curPcsId][curTaskId];
+		unsigned short val;
+		int i = 0;
+		unsigned char temp = g_lcdyx_err_status[id_thread];
+
+		printf("bbbb temp:%d \n", temp);
+		for (i = curPcsId[id_thread]; i <= pPara_Modtcp->pcsnum[id_thread]; i++)
+		{
+			if ((temp & 1 << i) > 0)
+			{
+				regaddr = pcs_on_off_set[i];
+				time_now();
+				printf("LCD:%d err关机 ...\n", id_thread);
+				val = 0x00ff;
+				curPcsId[id_thread] = i;
+				ret = SetLcdFun06(id_thread, regaddr, val);
+				break;
+			}
+		}
+
+		if (i >= pPara_Modtcp->pcsnum[id_thread])
+		{
+			curPcsId[id_thread] = 0;
+			curTaskId[id_thread] = 0;
+			lcd_state[id_thread] = LCD_RUNNING;
+		}
+	}
+	break;
+
 	case LCD_PCS_START_STOP_ONE:
 	{
 		unsigned short regaddr; // = pq_pcspw_set[curPcsId][curTaskId];
@@ -394,12 +435,9 @@ void RunAccordingtoStatus(int id_thread)
 				regaddr = vsgpcs_pw_set[curPcsId[id_thread]];
 			val = g_emu_adj_lcd.adj_pcs[id_thread].val_pw[curPcsId[id_thread]] / 10;
 
-			if (val > 1670)
+			if (val > 1800)
 			{
-				val = 1670;
-			}
-			else if (val > 1670)
-			{
+				val = 1800;
 			}
 
 			if (val < 0)
@@ -409,9 +447,9 @@ void RunAccordingtoStatus(int id_thread)
 
 			if (flag == 1)
 			{
-				if ((-val) > 1670)
+				if ((-val) > 1800)
 				{
-					val = -1670;
+					val = -1800;
 				}
 			}
 			printf("LCD:%d PCSID:%d 按策略要求调节有功功率 ...val=%d\n", id_thread, curPcsId[id_thread], val);
@@ -553,11 +591,21 @@ write_loop:
 			}
 			else
 			{
+
 				if (bms_ov_status[id_thread] > 0 && lcd_state[id_thread] == LCD_RUNNING)
 				{
+					time_now();
 					printf("aaaa停机ov bms_ov_status[%d]:%x \n", id_thread, bms_ov_status[id_thread]);
 					curPcsId[id_thread] = 0;
 					lcd_state[id_thread] = LCD_PCS_STOP_OV;
+				}
+
+				if (g_lcdyx_err_status[id_thread] > 0 && lcd_state[id_thread] == LCD_RUNNING)
+				{
+					time_now();
+					printf("bbbb故障停机err g_lcdyx_err_status[%d]:%x \n", id_thread, g_lcdyx_err_status[id_thread]);
+					lcd_state[id_thread] = LCD_PCS_STOP_YXERR;
+					curPcsId[id_thread] = 0;
 				}
 				RunAccordingtoStatus(id_thread);
 			}
@@ -727,15 +775,17 @@ loop:
 				ret = recvFrame(fd, g_comm_qmegid[id_thread], &recvbuf);
 				if (ret == -1)
 				{
-					i++;
-
-					if (i > 30)
-					{
-						printf("接收不成功！！！！！！！！！！！！！！！！i=%d\r\n", i);
+						printf("客户端连接异常！！！！！！！！！！！！！！！！\r\n", i);
 						break;
-					}
-					else
-						continue;
+					// i++;
+
+					// if (i > 30)
+					// {
+					// 	printf("接收不成功！！！！！！！！！！！！！！！！i=%d\r\n", i);
+					// 	break;
+					// }
+					// else
+					// 	continue;
 				}
 				else if (ret == 1)
 				{
@@ -748,9 +798,9 @@ loop:
 					// 	i=0;
 
 					// }
-					printf("id_thread:%d 对方已断开连接 \n", id_thread);
-					break;
-					// continue;
+					// printf("id_thread:%d 对方已断开连接 \n", id_thread);
+					// break;
+					continue;
 				}
 				else
 				{

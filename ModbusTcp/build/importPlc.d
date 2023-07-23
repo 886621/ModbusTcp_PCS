@@ -1,4 +1,4 @@
-/media/sf_work/ZGEMU_tc-230708/ModbusTcp_PCS/ModbusTcp_PCS/ModbusTcp/build/importPlc.o: \
+/media/sf_work/ZGEMU_tc-230708/ModbusTcp_PCS.bak2/ModbusTcp_PCS/ModbusTcp_PCS/ModbusTcp_PCS/ModbusTcp/build/importPlc.o: \
  src/importlib/importPlc.c src/importlib/importPlc.h \
  src/protocol/logicAndControl.h \
  /opt/gcc-linaro-arm-linux-gnueabihf-4.7-2013.03-20130313_linux/bin/../arm-linux-gnueabihf/libc/usr/include/./stdio.h \
