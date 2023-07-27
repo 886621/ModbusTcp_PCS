@@ -85,7 +85,8 @@ unsigned short pqpcs_pw_set_1[] = {0x2000, 0x2001, 0x2002, 0x2003, 0x2004, 0x200
 
 unsigned short vsgpcs_pw_set[] = {0x3001, 0x3011, 0x3021, 0x3031, 0x3061, 0x3071};	   // 整机设置为VSG模式后，设置有功率
 unsigned short pq_vsg_pcs_qw_set[] = {0x3002, 0x3012, 0x3022, 0x3032, 0x3062, 0x3072}; // 整机设置为PG或VSG模式后，设置无功功率
-unsigned short pcs_on_off_set[] = {0x3000, 0x3010, 0x3020, 0x3030, 0x3060, 0x3070};	   // 整机开机或关机
+// unsigned short pcs_on_off_set[] = {0x3000, 0x3010, 0x3020, 0x3030, 0x3060, 0x3070};	   // 整机开机或关机
+unsigned short pcs_on_off_set[] = {0x201E, 0x201F, 0x2020, 0x2021, 0x2022, 0x2023};
 unsigned short pcs_on_off_set1[] = {0x201E, 0x201F, 0x2020, 0x2021, 0x2022, 0x2023};
 
 unsigned short pcsId_pq_vsg[] = {0, 0, 0, 0, 0, 0};
@@ -935,13 +936,13 @@ int AnalysModbus(int id_thread, unsigned char *pdata, int len, int flag) // unsi
 		else
 			printf("注意：整机启动或停止程序出错！！！！\n");
 	}
-	else if (funid == 6 && lcd_state[id_thread] == LCD_PCS_STOP_OV)
+	else if (funid == 6 && lcd_state[id_thread] == LCD_PCS_STOP_BMS_ERR)
 	{
 		if (regAddr == pcs_on_off_set[curPcsId[id_thread]]) // 启动或停止
 		{
 			curTaskId[id_thread]++;
 			g_emu_action_lcd.action_pcs[id_thread].flag_start_stop_pcs[curPcsId[id_thread]] = 0;
-			bms_ov_status[id_thread] &= ~(1 << curPcsId[id_thread]);
+			bms_err_status[id_thread] &= ~(1 << curPcsId[id_thread]);
 			time_now();
 			printf("06 返回bms_ov_status[%d]:%d \n", id_thread, bms_ov_status[id_thread]);
 			g_emu_status_lcd.status_pcs[id_thread].flag_start_stop[curPcsId[id_thread]] = 0;
@@ -963,6 +964,19 @@ int AnalysModbus(int id_thread, unsigned char *pdata, int len, int flag) // unsi
 		else
 			printf("注意：ov 停止程序出错！！！！\n");
 	}
+	else if (funid == 6 && lcd_state[id_thread] == LCD_PCS_BMAS_OV)
+	{
+		if (regAddr == pqpcs_pw_set[curPcsId[id_thread]]) // 电压越限待机返回
+		{
+			curTaskId[id_thread]++;
+			bms_ov_status[id_thread] &= ~(1 << curPcsId[id_thread]);
+			time_now();
+			printf("06 返回 电压越限待机返回bms_ov_status[%d]:%d \n", id_thread, bms_ov_status[id_thread]);
+		}
+		else
+			printf("注意：ov 电压越限待机出错！！！！\n");
+	}
+
 	else if (funid == 6 && (lcd_state[id_thread] == LCD_PCS_START_STOP_ONE))
 	{
 		if (regAddr == pcs_on_off_set[curPcsId[id_thread]]) // 单pcs启动或停止

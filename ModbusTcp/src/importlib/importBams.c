@@ -1,17 +1,19 @@
 #include "importBams.h"
 
 #include <stdio.h>
-
+#include "output.h"
 #include <dlfcn.h>
 #include <string.h>
 #include <unistd.h>
 #include <stdlib.h>
 #include "logicAndControl.h"
+#include "YC_Define.h"
 #define LIB_MODBMS_PATH "/usr/local/lib/libbams_rtu.so"
 PARA_BAMS para_bams;
 BmsData_Newest bmsdata_cur[PORTNUM_MAX][18];
 BmsData_Newest bmsdata_bak[PORTNUM_MAX][18];
 unsigned char bms_ov_status[6] = {0, 0, 0, 0, 0, 0};
+unsigned char bms_err_status[6] = {0, 0, 0, 0, 0, 0};
 int checkBmsForStart(int sn)
 {
 	unsigned short status_bms;
@@ -55,7 +57,7 @@ int countPcsNum_Bms(unsigned int flag_recv)
 	return num_pcs;
 }
 
-int lcdPcsCount(unsigned char bmsid, unsigned char pcsid_bms, unsigned char *pLcdid, unsigned char *pLcd_pcs_id)
+int lcdPcsCount(unsigned char bmsid, unsigned char pcsid_bms, unsigned char *pLcdid, unsigned char *pLcd_pcs_id, unsigned char *psn)
 {
 	int i;
 	unsigned char lcdid = 0, lcd_pcs_id = 0;
@@ -64,6 +66,8 @@ int lcdPcsCount(unsigned char bmsid, unsigned char pcsid_bms, unsigned char *pLc
 		temp += g_emu_op_para.num_pcs_bms[i];
 
 	pcsid_bms_temp += temp;
+	*psn = pcsid_bms_temp;
+
 	printf("BAMS 的数据 bmsid=%d pcsid_bms=%d 总id =%d \n", bmsid, pcsid_bms, pcsid_bms_temp);
 
 	while (pcsid_bms_temp >= pPara_Modtcp->pcsnum[lcdid])
@@ -131,14 +135,60 @@ int lcdPcsCount(unsigned char bmsid, unsigned char pcsid_bms, unsigned char *pLc
 // 	*pLcd_pcs_id = lcd_pcs_id - 1;
 // 	return 0;
 // }
-void setting_ov_status(unsigned char bmsid, unsigned char pcsid_bms, unsigned short single_mx_vol, unsigned short single_mi_vol, unsigned short sys_status)
+int check_adj_pw(unsigned char lcdid, unsigned char lcd_pcs_id, unsigned char sn, short mx_dpw, short mx_cpw, short pw)
 {
 
-	unsigned char lcdid = 0, lcd_pcs_id = 0;
+	int flag = 0;
+	printf("当前功率情况 lcdid=%d lcd_pcs_id=%d 最大放电：%d 最小充电：%d 遥测电压：%d \n", lcdid, lcd_pcs_id, mx_dpw, -mx_cpw, pw);
 
+	if (g_emu_status_lcd.status_pcs[lcdid].flag_start_stop[lcd_pcs_id] == 1)
+	{
+
+		printf("充电开始 当前功率情况 lcdid=%d lcd_pcs_id=%d 最大放电：%d 最小充电：%d 遥测电压：%d \n", lcdid, lcd_pcs_id, mx_dpw, -mx_cpw, pw);
+		time_now();
+		if (pw > 0 && pw > mx_dpw)
+		{
+			printf("1111需要调整放电 当前功率情况  最大放电：%d 最小充电：%d 遥测电压：%d\n", mx_dpw, -mx_cpw, pw);
+			// bms_adj_pw_temp[lcdid] |= (1 << lcd_pcs_id);
+			g_emu_adj_lcd.adj_pcs[lcdid].val_pw[lcd_pcs_id] = mx_dpw;
+			g_emu_adj_lcd.flag_adj_pw_lcd[lcdid] = 1;
+			g_emu_adj_lcd.adj_pcs[lcdid].flag_adj_pw[lcd_pcs_id] = 1;
+			flag = 1;
+		}
+		else if (pw < 0 && pw < -mx_cpw)
+		{
+			printf("2222需要调整充电 当前功率情况  最大放电：%d 最小充电：%d 遥测电压：%d lcdid=%d lcd_pcs_id=%d\n", mx_dpw, -mx_cpw, pw, lcdid, lcd_pcs_id);
+
+			// bms_adj_pw_temp[lcdid] |= (1 << lcd_pcs_id);
+			g_emu_adj_lcd.adj_pcs[lcdid].val_qw[lcd_pcs_id] = -mx_cpw;
+
+			g_emu_adj_lcd.flag_adj_pw_lcd[lcdid] = 1;
+			g_emu_adj_lcd.adj_pcs[lcdid].flag_adj_pw[lcd_pcs_id] = 1;
+			flag = 1;
+		}
+	}
+
+	return flag;
+}
+
+void setting_ov_status(unsigned char bmsid, unsigned char pcsid_bms, unsigned short single_mx_vol, unsigned short single_mi_vol, unsigned short sys_status, short mx_dpw, short mx_cpw)
+{
+
+	unsigned short temp_pw;
+	short pw;
+
+	unsigned char lcdid = 0, lcd_pcs_id = 0, sn = 0;
+	int flag_temp;
+
+	printf("uuuuiiii\n");
+	temp_pw = g_YcData[sn].pcs_data[Active_power];
+	pw = (temp_pw % 256) * 256 + temp_pw / 256;
+	//	pw = -190;
+	pw *= 10;
 	static unsigned char flag_recv_pcs[] = {0, 0, 0, 0, 0, 0};
 	static unsigned char bms_ov_status_temp[] = {0, 0, 0, 0, 0, 0};
-	lcdPcsCount(bmsid, pcsid_bms, &lcdid, &lcd_pcs_id);
+	static unsigned char bms_err_status_temp[] = {0, 0, 0, 0, 0, 0};
+	lcdPcsCount(bmsid, pcsid_bms, &lcdid, &lcd_pcs_id, &sn);
 
 	flag_recv_pcs[lcdid] |= (1 << lcd_pcs_id);
 
@@ -156,20 +206,30 @@ void setting_ov_status(unsigned char bmsid, unsigned char pcsid_bms, unsigned sh
 		{
 
 			printf("setting_ov_status aaabbb single_mx_vol=%d  pPara_Modtcp->Maximum_individual_voltage=%d \n", single_mx_vol, pPara_Modtcp->Maximum_individual_voltage);
+
+			if (pw != 0)
+			{
+				bms_ov_status_temp[lcdid] |= (1 << lcd_pcs_id);
+				time_now();
+			}
+
+			printf("setting_ov_status aaabbbcccc\n");
 		}
 		else if (single_mi_vol <= pPara_Modtcp->Minimum_individual_voltage)
 		{
 			printf("setting_ov_status single_mi_vol:%d pPara_Modtcp->Maximum_individual_voltage=%d \n", single_mi_vol, pPara_Modtcp->Maximum_individual_voltage);
+
+			if (pw != 0)
+			{
+				bms_ov_status_temp[lcdid] |= (1 << lcd_pcs_id);
+				time_now();
+			}
+			printf("setting_ov_status aaabbbcccc\n");
 		}
 		else
 		{
+			bms_err_status_temp[lcdid] |= (1 << lcd_pcs_id);
 			printf("出现电池簇故障！！！\n");
-		}
-		if (g_emu_status_lcd.status_pcs[lcdid].flag_start_stop[lcd_pcs_id] == 1)
-		{
-			time_now();
-			printf("setting_ov_status aaabbbcccc\n");
-			bms_ov_status_temp[lcdid] |= (1 << lcd_pcs_id);
 		}
 	}
 	printf("setting_ov_status 44444 lcdid=%d  lcd_pcs_id=%d  flag_recv_pcs[lcdid]=%x flag_RecvNeed_PCS[lcdid]=%x\n", lcdid, lcd_pcs_id, flag_recv_pcs[lcdid], flag_RecvNeed_PCS[lcdid]);
@@ -186,8 +246,36 @@ void setting_ov_status(unsigned char bmsid, unsigned char pcsid_bms, unsigned sh
 		}
 		else
 			printf("setting_ov_status 00000   lcdid=%d  %x  %x  \n", lcdid, bms_ov_status[lcdid], bms_ov_status_temp[lcdid]);
+
+		if (bms_err_status[lcdid] == 0 && bms_err_status_temp[lcdid] != 0)
+		{
+			time_now();
+			bms_err_status[lcdid] = bms_err_status_temp[lcdid];
+			bms_err_status_temp[lcdid] = 0;
+			printf("setting_ov_status bbbbb lcdid=%d %x  %x  \n", lcdid, bms_err_status[lcdid], bms_err_status_temp[lcdid]);
+		}
+		else
+			printf("setting_ov_status aaaaa   lcdid=%d  %x  %x  \n", lcdid, bms_err_status[lcdid], bms_err_status_temp[lcdid]);
+	}
+
+	flag_temp = check_adj_pw(lcdid, lcd_pcs_id, sn, mx_dpw, mx_cpw, pw);
+	if (flag_temp > 0)
+	{
+		printf("setting_ov_status 检测出需要调节功率lcdid=%d lcd_pcs_id=%d\n", lcdid, lcd_pcs_id);
+	}
+
+	if (flag_recv_pcs[lcdid] == flag_RecvNeed_PCS[lcdid])
+	{
+		flag_recv_pcs[lcdid] = 0;
+
+		// if (flag > 0)
+		// {
+		// 	setStatusPw(lcdid);
+		// }
+		// flag = 0;
 	}
 }
+
 int recvfromBams(unsigned char pcsid_bms, unsigned char type, void *pdata)
 {
 	int i, j;
@@ -209,7 +297,7 @@ int recvfromBams(unsigned char pcsid_bms, unsigned char type, void *pdata)
 				flag_recv_bms[i] = 0;
 		}
 
-		printf("xxxLCD模块收到BAMS传来的所有数据！bmsid=%d pcsid=%d %d \n", temp.bmsid, pcsid_bms, temp.pcsid_bms);
+		printf("xxxLCD模块收到BAMS传来的所有数据！bmsid=%d pcsid=%d %d g_emu_op_para.num_pcs_bms[0]=%d\n", temp.bmsid, pcsid_bms, temp.pcsid_bms, g_emu_op_para.num_pcs_bms[0]);
 		bmsdata_cur[bmsid][pcsid_bms].mx_cpw = temp.buf_data[BMS_MX_CPW * 2] * 256 + temp.buf_data[BMS_MX_CPW * 2 + 1];
 		bmsdata_cur[bmsid][pcsid_bms].mx_dpw = temp.buf_data[BMS_MX_DPW * 2] * 256 + temp.buf_data[BMS_MX_DPW * 2 + 1];
 		bmsdata_cur[bmsid][pcsid_bms].heartbeat = temp.buf_data[BMS_CONN_HEARTBEAT * 2] * 256 + temp.buf_data[BMS_CONN_HEARTBEAT * 2 + 1];
@@ -227,11 +315,13 @@ int recvfromBams(unsigned char pcsid_bms, unsigned char type, void *pdata)
 		bmsdata_cur[bmsid][pcsid_bms].sys_need = temp.buf_data[BMS_SYS_NEED * 2] * 256 + temp.buf_data[BMS_SYS_NEED * 2 + 1];
 		bmsdata_cur[bmsid][pcsid_bms].if_sys_fault = temp.buf_data[BMS_FAULT_STATUS * 2] * 256 + temp.buf_data[BMS_FAULT_STATUS * 2 + 1];
 		flag_recv_bms[bmsid] |= (1 << pcsid_bms);
+		printf("xxyyzz g_emu_op_para.num_pcs_bms[0]=%d  g_emu_op_para.num_pcs_bms[1] =%d \n", g_emu_op_para.num_pcs_bms[0], g_emu_op_para.num_pcs_bms[1]);
 
 		if (g_emu_op_para.num_pcs_bms[0] > 0 && g_emu_op_para.num_pcs_bms[1] > 0)
 		{
 			printf("recvfromBams g_emu_op_para.num_pcs_bms[0]=%d  g_emu_op_para.num_pcs_bms[1]=%d \n", g_emu_op_para.num_pcs_bms[0], g_emu_op_para.num_pcs_bms[1]);
-			setting_ov_status(bmsid, pcsid_bms, bmsdata_cur[bmsid][pcsid_bms].single_mx_vol, bmsdata_cur[bmsid][pcsid_bms].single_mi_vol, bmsdata_cur[bmsid][pcsid_bms].sys_status);
+			// setting_ov_status(bmsid, pcsid_bms, bmsdata_cur[bmsid][pcsid_bms].single_mx_vol, bmsdata_cur[bmsid][pcsid_bms].single_mi_vol, bmsdata_cur[bmsid][pcsid_bms].sys_status);
+			setting_ov_status(bmsid, pcsid_bms, bmsdata_cur[bmsid][pcsid_bms].single_mx_vol, bmsdata_cur[bmsid][pcsid_bms].single_mi_vol, bmsdata_cur[bmsid][pcsid_bms].sys_status, bmsdata_cur[bmsid][pcsid_bms].mx_dpw, bmsdata_cur[bmsid][pcsid_bms].mx_cpw);
 		}
 		total_temp = 0;
 		for (i = 0; i < pPara_Modtcp->bams_num; i++)

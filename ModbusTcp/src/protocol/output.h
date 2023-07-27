@@ -11,6 +11,7 @@ typedef struct
 } PARA_61850; // 从LCD到61850模块的结构
 
 extern LCD_YC_YX_DATA g_YxData[];
+extern LCD_YC_YX_DATA g_YcData[];
 extern unsigned char g_lcdyx_err_status[];
 int SaveYcData(int id_thread, int pcsid, unsigned short *pyc, unsigned char len);
 int SaveYxData(int id_thread, int pcsid, unsigned short *pyx, unsigned char len);

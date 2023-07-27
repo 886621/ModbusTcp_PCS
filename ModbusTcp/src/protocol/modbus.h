@@ -104,7 +104,7 @@ enum LCD_WORK_STATE // LCD当前工作状态
 
 	LCD_PCS_START_STOP_ONE = 12, // 启动本LCD下一个PCS
 
-	LCD_PCS_STOP_OV = 13,	   // 单体电压过高或过低关机
+	LCD_PCS_STOP_BMS_ERR = 13, // BAMS故障停机
 	LCD_PARALLEL_AWAY_EN = 14, // 并转离切换使能
 	LCD_PARALLEL_AWAY_DN = 15, // 并转离切换失能
 
@@ -117,8 +117,11 @@ enum LCD_WORK_STATE // LCD当前工作状态
 	LCD_PCS_START_ALL = 32,	   // 整机启动所有pcs
 
 	LCD_PCS_STOP_YXERR = 33, // 遥信故障情况下关机
-	LCD_DO_NOTHING = 0xfe,	 // 什么都不做
-	LCD_RUNNING = 0xff,		 // 正常工作中，循环抄取遥信遥测
+
+	LCD_PCS_BMAS_OV = 34, // 充电电压超过阈值进入待机
+
+	LCD_DO_NOTHING = 0xfe, // 什么都不做
+	LCD_RUNNING = 0xff,	   // 正常工作中，循环抄取遥信遥测
 };
 // <<<<<<< HEAD
 

@@ -118,12 +118,12 @@ void startAllPcs(void)
 		{
 			flag = 1;
 			printf("LCD[%d] 立即启动 startAllPcs lcd_state[i]=%d\n", i, lcd_state[i]);
-
-			// if (g_emu_op_para.err_num != 0)
-			// 	lcd_state[i] = LCD_PCS_START;
-			// else
-			// 	lcd_state[i] = LCD_PCS_START_ALL;
-			lcd_state[i] = LCD_PCS_START;
+			
+			if (g_emu_op_para.err_num != 0)
+				lcd_state[i] = LCD_PCS_START;
+			else
+				lcd_state[i] = LCD_PCS_START_ALL;
+			// lcd_state[i] = LCD_PCS_START;
 			curTaskId[i] = 0;
 			curPcsId[i] = 0;
 		}
@@ -542,10 +542,12 @@ int findCurPcsForStop(int lcdid, int pcsid)
 	printf("findCurPcsForStop lcdid=%d, pcsid=%d\n", lcdid, pcsid);
 	for (i = pcsid; i < pPara_Modtcp->pcsnum[lcdid]; i++)
 	{
-		if (g_emu_status_lcd.status_pcs[lcdid].flag_start_stop[pcsid] == 1)
+		if (g_emu_status_lcd.status_pcs[lcdid].flag_start_stop[i] == 1)
 		{
 			break;
 		}
+		else
+			printf("findCurPcsForStop 没有启动 lcdid=%d, pcsid=%d  err=%d\n", lcdid, pcsid, g_emu_status_lcd.status_pcs[lcdid].flag_err[i]);
 	}
 	if (i == pPara_Modtcp->pcsnum[lcdid])
 	{
@@ -560,6 +562,7 @@ int findCurPcsForStop(int lcdid, int pcsid)
 
 	return 1;
 }
+
 
 void printf_pcs_soc(void)
 {
