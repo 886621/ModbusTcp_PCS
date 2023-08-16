@@ -17,6 +17,8 @@
 #include "logicAndControl.h"
 #include "output.h"
 #include "mytimer.h"
+
+#include <errno.h>
 // 当使用Modbus/TCP时，modbus poll一般模拟客户端，modbus slave一般模拟服务端
 int wait_flag[] = {0, 0, 0, 0, 0, 0};
 char modbus_sockt_state[MAX_LCD_NUM];
@@ -556,11 +558,11 @@ void *Modbus_clientSend_thread(void *arg) // 25
 	}
 
 	g_comm_qmegid[id_thread] = os_create_msgqueue(&key, 1);
-	// wait_flag[id_thread] = 0;
+	wait_flag[id_thread] = 0;
 	sleep(2);
 
 write_loop:
-	wait_flag[id_thread] = 0;
+	// wait_flag[id_thread] = 0;
 	while (modbus_sockt_state[id_thread] == STATUS_ON) //
 	{
 		// printf("wait_flag:%d\n", wait_flag);
@@ -604,18 +606,21 @@ write_loop:
 		if (wait_flag[id_thread] == 1)
 		{
 			waittime++;
-			// if (waittime == 1000)
-			// {
-			// 	printf("pcs写入线程 wait_flag[%d] == 1 \n",id_thread);
-			// 	// waittime = 0;
-			// }
+			if (waittime == 1000)
+			{
+				printf("pcs写入线程 wait_flag[%d] == 1 \n",id_thread);
+				// waittime = 0;
+			}
 
-			if (waittime == 10000)
+		/*
+		if (waittime == 10000)
 			{
 				printf("pcs写入线程 wait_flag22[%d] == 1 \n",id_thread);
 				system("reboot");
 				// waittime = 0;
 			}
+		*/	
+			
 			// if (waittime == 1000)
 			// {
 			// 	wait_flag = 0;
@@ -670,6 +675,7 @@ write_loop:
 			curPcsId[id_thread] = 0;
 		    curTaskId[id_thread] = 0;
 			lcd_state[id_thread] = LCD_RUNNING;
+			goto write_loop;
 		}
 			sleep(3);
 	}
@@ -689,7 +695,7 @@ static int recvFrame(int fd, int qid, MyData *recvbuf)
 	//		readlen = recv(fd, (recvbuf.buf + recvbuf.len),
 	//				(MAX_BUF_SIZE - recvbuf.len), 0);
 	//		printf("*****  F:%s L:%d recv readlen=%d\n", __FUNCTION__, __LINE__,	readlen);
-	// printf("*****  recv readlen=%d\n",readlen);
+	printf("*****  recv readlen=%d\n",readlen);
 	if (readlen < 0)
 	{
 
@@ -715,7 +721,7 @@ static int recvFrame(int fd, int qid, MyData *recvbuf)
 	}
 	else
 	{
-		return 1;
+		return 2;
 	}
 
 	// for(i=0;i<readlen;i++)
@@ -731,6 +737,7 @@ void *Modbus_clientRecv_thread(void *arg) // 25
 	struct timeval tv;
 	int ret;
 	int i = 0; //, jj = 0;
+	int jj = 0;
 
 	MyData recvbuf;
 	printf("LCD[%d] Modbus_clientRecv_thread is Starting!\n", id_thread);
@@ -808,54 +815,39 @@ loop:
 		}
 		else if (ret == 0)
 		{
-			// jj++;
+			// printf("暂时没有数据传入！！！！未接收到数据次数=！！！！！！！！！！！！！！！！\r\n");
+			jj++;
 
-			// if (jj > 1000)
-			// {
-			// 	printf("暂时没有数据传入！！！！未接收到数据次数=%d！！！！！！！！！！！！！！！！\r\n", jj);
-			// 	jj = 0;
+			if (jj > 10000)
+			{
+				printf("暂时没有数据传入！！！！未接收到数据次数=%d！！！！！！！！！！！！！！！！\r\n", jj);
+				jj = 0;
 
-			// 	//				break;
-			// }
+				//				break;
+			}
 			continue;
 		}
 		else
 		{
-
 			// jj = 0;
 
 			// printf("貌似收到数据！！！！！！！！！！！！");
 			if (FD_ISSET(fd, &maxFd))
 			{
 				ret = recvFrame(fd, g_comm_qmegid[id_thread], &recvbuf);
+				// printf("11111recvFrame %d\n",ret);
 				if (ret == -1)
 				{
-					printf("客户端连接异常！！！！！！！！！！！！！！！！\r\n", i);
+					printf("recv err:%d.\n", errno);
 					break;
-					// i++;
-
-					// if (i > 30)
-					// {
-					// 	printf("接收不成功！！！！！！！！！！！！！！！！i=%d\r\n", i);
-					// 	break;
-					// }
-					// else
-					// 	continue;
 				}
 				else if (ret == 1)
 				{
-					//                 i++;
-
-					// if(i>30)
-					// {
-					// printf("接收数据长度为0！！！！！！！！！！！！！！！！\r\n");
-
-					// 	i=0;
-
-					// }
-					// printf("id_thread:%d 对方已断开连接 \n", id_thread);
-					// break;
-					continue;
+					printf("id_thread:%d 对方已断开连接 \n", id_thread);
+					break;
+				}
+				else if(ret = 2){
+					printf("msg send err!!!! \n", id_thread);
 				}
 				else
 				{

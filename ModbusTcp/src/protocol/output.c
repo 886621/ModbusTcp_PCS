@@ -215,6 +215,7 @@ int SaveYxData(int id_thread, int pcsid, unsigned short *pyx, unsigned char len)
 	static unsigned char lcdyx_err_status[6] = {0, 0, 0, 0, 0, 0};
 	unsigned short temp;
 	unsigned char b1, b2;
+	unsigned short st_FlagSystemFaultExt1; //系统故障扩展字1
 	for (i = 0; i < id_thread; i++)
 	{
 		id += pPara_Modtcp->pcsnum[i];
@@ -240,7 +241,7 @@ int SaveYxData(int id_thread, int pcsid, unsigned short *pyx, unsigned char len)
 		// memcpy((char *)g_YxData[id - 1].pcs_data, (char *)pyx, len);
 
 		temp = g_YxData[id - 1].pcs_data[u16_InvRunState1];
-		
+		st_FlagSystemFaultExt1 = g_YxData[id - 1].pcs_data[u16_st_FlagSystemFaultExt1];
 
 		printf("saveYxData id_thread=%d pcsid=%d id=%d num=%d g_flag_RecvNeed_LCD:%d flag_recv_lcd:%d\n", id_thread, pcsid, id, len, g_flag_RecvNeed_LCD, flag_recv_lcd);
 		myprintbuf(len, (unsigned char *)g_YxData[id - 1].pcs_data);
@@ -260,7 +261,8 @@ int SaveYxData(int id_thread, int pcsid, unsigned short *pyx, unsigned char len)
 			g_emu_status_lcd.status_pcs[id_thread].flag_start_stop[pcsid - 1] = 0;
 		}
 
-		if (temp == 0 || ((temp & (1 << bFaultStatus)) != 0))
+		printf("st_FlagSystemFaultExt1:%d %d \n",st_FlagSystemFaultExt1,st_FlagSystemFaultExt1 & (1 << bLCDCommFault));
+		if (temp == 0 || (temp & (1 << bFaultStatus) != 0) || (st_FlagSystemFaultExt1 & (1 << bLCDCommFault) !=0) )
 		{
 			printf("lcdid=%d pcsid=%d 有故障 temp=%x\n", id_thread, pcsid, temp);
 			g_emu_status_lcd.status_pcs[id_thread].flag_err[pcsid - 1] = 1;

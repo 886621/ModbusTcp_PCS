@@ -52,7 +52,7 @@ int modbus_tcp_main(void *para_app)
 	printf("LCD 模块启动 最高单体电压=%d  最低单体电压=%d\n", pconfig->Maximum_individual_voltage, pconfig->Minimum_individual_voltage);
 
 	printf("BAMS 的个数 pPara_Modtcp->bams_num=%d\n", pPara_Modtcp->bams_num);
-	// bams_Init();
+	bams_Init();
 	Plc_Init();
 	initInterface61850();
 	CreateThreads();

@@ -1165,7 +1165,7 @@ int doFun03Tasks(int id_thread, int *p_pcsid)
 	else
 	{
 		g_send_data[id_thread].flag_waiting = 1;
-		// printf("任务包发送成功！！！！");
+		printf("任务包发送成功！！！！");
 	}
 	return 0;
 
