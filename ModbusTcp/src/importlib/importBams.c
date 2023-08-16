@@ -258,11 +258,11 @@ void setting_ov_status(unsigned char bmsid, unsigned char pcsid_bms, unsigned sh
 			printf("setting_ov_status aaaaa   lcdid=%d  %x  %x  \n", lcdid, bms_err_status[lcdid], bms_err_status_temp[lcdid]);
 	}
 
-	flag_temp = check_adj_pw(lcdid, lcd_pcs_id, sn, mx_dpw, mx_cpw, pw);
-	if (flag_temp > 0)
-	{
-		printf("setting_ov_status 检测出需要调节功率lcdid=%d lcd_pcs_id=%d\n", lcdid, lcd_pcs_id);
-	}
+	// flag_temp = check_adj_pw(lcdid, lcd_pcs_id, sn, mx_dpw, mx_cpw, pw);
+	// if (flag_temp > 0)
+	// {
+	// 	printf("setting_ov_status 检测出需要调节功率lcdid=%d lcd_pcs_id=%d\n", lcdid, lcd_pcs_id);
+	// }
 
 	if (flag_recv_pcs[lcdid] == flag_RecvNeed_PCS[lcdid])
 	{

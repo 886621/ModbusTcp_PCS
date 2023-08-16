@@ -25,7 +25,6 @@ int modbus_client_sockptr[MAX_LCD_NUM];
 MyData clent_data_temp[MAX_LCD_NUM];
 int g_comm_qmegid[MAX_LCD_NUM];
 
-int conn_flag[MAX_LCD_NUM] = {0, 0, 0, 0, 0, 0};
 
 unsigned int g_num_frame[] = {1, 1, 1, 1, 1, 1};
 int send_heat_beat(int id_thread)
@@ -605,10 +604,17 @@ write_loop:
 		if (wait_flag[id_thread] == 1)
 		{
 			waittime++;
-			if (waittime == 1000)
+			// if (waittime == 1000)
+			// {
+			// 	printf("pcs写入线程 wait_flag[%d] == 1 \n",id_thread);
+			// 	// waittime = 0;
+			// }
+
+			if (waittime == 10000)
 			{
-				printf("pcs写入线程 wait_flag[id_thread] == 1");
-				waittime = 0;
+				printf("pcs写入线程 wait_flag22[%d] == 1 \n",id_thread);
+				system("reboot");
+				// waittime = 0;
 			}
 			// if (waittime == 1000)
 			// {
@@ -626,8 +632,8 @@ write_loop:
 			}
 			else
 			{
-				if (setStatusPw(id_thread) == 1)
-					goto myloop;
+				// if (setStatusPw(id_thread) == 1)
+				// 	goto myloop;
 				if (bms_err_status[id_thread] > 0 && lcd_state[id_thread] == LCD_RUNNING)
 				{
 					time_now();
@@ -651,14 +657,8 @@ write_loop:
 					curPcsId[id_thread] = 0;
 				}
 
-			myloop:
+			// myloop:
 				RunAccordingtoStatus(id_thread);
-			}
-
-			if (conn_flag[id_thread] == 1)
-			{
-				lcd_state[id_thread] = LCD_RUNNING;
-				conn_flag[id_thread] = 0;
 			}
 		}
 	}
@@ -670,10 +670,9 @@ write_loop:
 			goto write_loop;
 			wait_flag[id_thread] = 0;
 		}
-
 		else
 		{
-			printf(" write_loop 连接aaa\n");
+			// printf(" write_loop 连接aaa\n");
 			continue;
 		}
 		sleep(3);
@@ -876,7 +875,7 @@ loop:
 		}
 	}
 	close(fd);
-	conn_flag[id_thread] = 1;
+	lcd_state[id_thread] = LCD_RUNNING;
 	modbus_sockt_state[id_thread] = STATUS_OFF;
 	pPara_Modtcp->lcdnum_real--;
 	// g_flag_RecvNeed_LCD &= ~(1 << id_thread);
