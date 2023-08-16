@@ -665,17 +665,13 @@ write_loop:
 
 	while (1)
 	{
-		if (modbus_sockt_state[id_thread] == STATUS_ON)
-		{
-			goto write_loop;
+		if (modbus_sockt_state[id_thread] == STATUS_ON){
 			wait_flag[id_thread] = 0;
+			curPcsId[id_thread] = 0;
+		    curTaskId[id_thread] = 0;
+			lcd_state[id_thread] = LCD_RUNNING;
 		}
-		else
-		{
-			// printf(" write_loop 连接aaa\n");
-			continue;
-		}
-		sleep(3);
+			sleep(3);
 	}
 
 	return NULL;

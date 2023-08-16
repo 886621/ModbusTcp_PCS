@@ -240,6 +240,7 @@ int SaveYxData(int id_thread, int pcsid, unsigned short *pyx, unsigned char len)
 		// memcpy((char *)g_YxData[id - 1].pcs_data, (char *)pyx, len);
 
 		temp = g_YxData[id - 1].pcs_data[u16_InvRunState1];
+		
 
 		printf("saveYxData id_thread=%d pcsid=%d id=%d num=%d g_flag_RecvNeed_LCD:%d flag_recv_lcd:%d\n", id_thread, pcsid, id, len, g_flag_RecvNeed_LCD, flag_recv_lcd);
 		myprintbuf(len, (unsigned char *)g_YxData[id - 1].pcs_data);
